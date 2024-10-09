@@ -6,13 +6,15 @@ import os
 from distutils.util import strtobool
 
 import risk
+from risk.custom_maps import create_simple_map
+
 try:
     from risk.nn import *
 except ImportError:
     pass
 
 def __main__(args):
-    mapid = risk.api.MapID[args.map]
+    mapstruct = create_simple_map()
     if args.model_1 is not None:
         model1 = pickle.load(open(args.model_1, "rb"))
     else:
@@ -26,7 +28,7 @@ def __main__(args):
 
     data = {
         "self-play": True,
-        "map": int(mapid),
+        "map": 1,
         "turns": [],
         "winner": None
     }
@@ -44,7 +46,7 @@ def __main__(args):
             alpha=args.alpha_1,
             pop_size=args.pop_size_1,
             mirror_model=args.mirror_model_1,
-            rounds=args.rounds_1,
+            #rounds=args.rounds_1,
     )
     bot2 = args.model_type_2(
             None, 2, 1, model2,
@@ -59,9 +61,9 @@ def __main__(args):
             alpha=args.alpha_2,
             pop_size=args.pop_size_2,
             mirror_model=args.mirror_model_2,
-            rounds=args.rounds_2,
+            #rounds=args.rounds_2,
     )
-    game = risk.LocalGameManager.fromMap(mapid, cache=args.map_cache)
+    game = risk.LocalGameManager(mapstruct)
 
     callbacks = [risk.standard_callback]
     if args.output_dir:
