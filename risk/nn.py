@@ -108,7 +108,15 @@ from torch_geometric.nn import GCNConv, Linear, GatedGraphConv, GATConv, GATv2Co
 
 class Model5(torch.nn.Module):
     def predict_policy(self): return True
+    
     def batched(self): return False
+
+    def init_weights(self, m):
+      if isinstance(m, torch.nn.Linear):
+        torch.nn.init.kaming_uniform_(m.weight.data)
+        if m.bias is not None:
+            torch.nn.init.constant_(m.bias.data, 0)
+
     def __init__(self):
         super().__init__()
 
