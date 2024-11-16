@@ -14,20 +14,6 @@ try:
 except ImportError:
     pass
 
-def collect_training_data(turn_data, winner, replay_buffer):
-    for turn in turn_data:
-        state = (turn['owner'], turn['armies'])
-
-        move_probs = turn['move_probs']
-        win_values = turn['win_value']
-        
-        # Loop through each player's data and store it in the replay buffer
-        for player_idx in range(len(win_values)):
-            policy = move_probs[player_idx]
-            value = float(win_values[player_idx])
-            experience = (state, policy, value)
-            replay_buffer.add(experience)
-
 def __main__(args):
     mapstruct = create_simple_map()
     if args.model_1 is not None:
@@ -98,7 +84,7 @@ def __main__(args):
         )
 
         data["winner"] = result
-        collect_training_data(data["turns"], data["winner"], replay_buffer)
+        replay_buffer.collect_training_data(data["turns"])
         print(f"Game complete: Player {result} Won")
 
         if args.output_dir:
