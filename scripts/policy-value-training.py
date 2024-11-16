@@ -18,7 +18,7 @@ def collect_training_data(turn_data, winner, replay_buffer):
     for turn in turn_data:
         state = (turn['owner'], turn['armies'])
         policy = turn['move_probs'][0]
-        value = 1.0 if winner == turn['owner'] else -1.0
+        value = 1.0 if winner == 1 else -1.0 if winner == 2 else 0.0
         experience = (state, policy, value)
         replay_buffer.add(experience)
 
@@ -32,69 +32,77 @@ def __main__(args):
         model2 = pickle.load(open(args.model_2, "rb"))
     else:
         model2 = None
-
-    print(f"Starting game on {args.map}")
-
-    data = {
-        "self-play": True,
-        "map": 1,
-        "turns": [],
-        "winner": None
-    }
-
+    
     replay_buffer = ReplayBuffer(capacity=args.buffer_capacity)
 
-    bot1 = args.model_type_1(
-            None, 1, 2, model1,
-            iters=args.iter_1,
-            max_depth=args.max_depth_1,
-            trust_policy=args.policy_trust_1,
-            moves_to_consider=args.moves_consider_1,
-            timeout=args.time_limit_1,
-            exploration=args.exploration_1,
-            cache_opponent_moves=args.cache_opponent_moves_1,
-            obj_rand=args.obj_rand_1,
-            alpha=args.alpha_1,
-            pop_size=args.pop_size_1,
-            mirror_model=args.mirror_model_1,
-            #rounds=args.rounds_1,
-    )
-    bot2 = args.model_type_2(
-            None, 2, 1, model2,
-            iters=args.iter_2,
-            max_depth=args.max_depth_2,
-            trust_policy=args.policy_trust_2,
-            moves_to_consider=args.moves_consider_2,
-            timeout=args.time_limit_2,
-            exploration=args.exploration_2,
-            cache_opponent_moves=args.cache_opponent_moves_2,
-            obj_rand=args.obj_rand_2,
-            alpha=args.alpha_2,
-            pop_size=args.pop_size_2,
-            mirror_model=args.mirror_model_2,
-            #rounds=args.rounds_2,
-    )
-    game = risk.LocalGameManager(mapstruct)
+    for _ in range(args.num_games):
 
-    callbacks = [risk.standard_callback]
-    if args.output_dir:
-        callbacks.append(risk.record_data_callback(data))
-    if args.surrender_thresh > 0:
-        callbacks.append(risk.early_terminate_callback(args.surrender_thresh))
+        print(f"\n\nStarting game on {args.map}")
 
-    result = game.play_loop(
-        bot1,
-        bot2,
-        callback=risk.compose_callbacks(*callbacks),
-    )
+        data = {
+            "self-play": True,
+            "map": 1,
+            "turns": [],
+            "winner": None
+        }
 
-    data["winner"] = result
-    collect_training_data(data["turns"], data["winner"], replay_buffer)
-    print(f"Game complete: Player {result} Won")
+
+        bot1 = args.model_type_1(
+                None, 1, 2, model1,
+                iters=args.iter_1,
+                max_depth=args.max_depth_1,
+                trust_policy=args.policy_trust_1,
+                moves_to_consider=args.moves_consider_1,
+                timeout=args.time_limit_1,
+                exploration=args.exploration_1,
+                cache_opponent_moves=args.cache_opponent_moves_1,
+                obj_rand=args.obj_rand_1,
+                alpha=args.alpha_1,
+                pop_size=args.pop_size_1,
+                mirror_model=args.mirror_model_1,
+                #rounds=args.rounds_1,
+        )
+        bot2 = args.model_type_2(
+                None, 2, 1, model2,
+                iters=args.iter_2,
+                max_depth=args.max_depth_2,
+                trust_policy=args.policy_trust_2,
+                moves_to_consider=args.moves_consider_2,
+                timeout=args.time_limit_2,
+                exploration=args.exploration_2,
+                cache_opponent_moves=args.cache_opponent_moves_2,
+                obj_rand=args.obj_rand_2,
+                alpha=args.alpha_2,
+                pop_size=args.pop_size_2,
+                mirror_model=args.mirror_model_2,
+                #rounds=args.rounds_2,
+        )
+        game = risk.LocalGameManager(mapstruct)
+
+        callbacks = [risk.standard_callback]
+        if args.output_dir:
+            callbacks.append(risk.record_data_callback(data))
+        if args.surrender_thresh > 0:
+            callbacks.append(risk.early_terminate_callback(args.surrender_thresh))
+
+        result = game.play_loop(
+            bot1,
+            bot2,
+            callback=risk.compose_callbacks(*callbacks),
+        )
+
+        data["winner"] = result
+        collect_training_data(data["turns"], data["winner"], replay_buffer)
+        print(f"Game complete: Player {result} Won")
+
+        if args.output_dir:
+            os.makedirs(args.output_dir, exist_ok=True)
+            json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
+        
+        print("\n\n")
 
     if args.output_dir:
         os.makedirs(args.output_dir, exist_ok=True)
-        json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
         replay_buffer.save(f"{args.output_dir}/replay_buffer.pkl")
     
     print(f'Replay buffer saved and contains {len(replay_buffer)} experiences.')
