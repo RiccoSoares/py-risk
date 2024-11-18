@@ -4,7 +4,7 @@
 pip install -r requirements.txt
 ```
 
-## Training an agent
+## Training a GNN
 Follow instructions in ```gnn-training/```
 
 ## Local Play
