@@ -28,3 +28,6 @@ PYTHONPATH=$(pwd) python gnn-training/self-play.py \
 ```
 Map played is currently Italy.
 
+## Training the Neural Network based on the collected experiences
+
+(todo)
