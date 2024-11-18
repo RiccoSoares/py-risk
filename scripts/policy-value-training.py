@@ -6,8 +6,9 @@ import os
 from distutils.util import strtobool
 
 import risk
-from risk.custom_maps import create_simple_map
+import risk.custom_maps as custom_maps
 from risk.replay_buffer import ReplayBuffer
+from risk.nn import Model5
 
 try:
     from risk.nn import *
@@ -15,16 +16,18 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = create_simple_map()
-    if args.model_1 is not None:
-        model1 = pickle.load(open(args.model_1, "rb"))
-    else:
-        model1 = None
-    if args.model_2 is not None:
-        model2 = pickle.load(open(args.model_2, "rb"))
-    else:
-        model2 = None
-    
+    mapstruct = custom_maps.create_italy_map()
+    network = Model5()
+
+    with open(args.model_path, 'rb') as f:
+        network.load_state_dict(pickle.load(f))
+
+    # Set to evaluation mode
+    network.eval()
+
+    model1 = network
+    model2 = network
+
     replay_buffer = ReplayBuffer(capacity=args.buffer_capacity)
 
     for _ in range(args.num_games):
@@ -110,8 +113,6 @@ if __name__ == "__main__":
     parser.add_argument("--num-games", type=int, default=10, help="Number of games to play for collecting data")
     parser.add_argument("--buffer-capacity", type=int, default=10000, help="Capacity of the replay buffer")
     parser.add_argument("--map-cache", type=str, default=None, help="Directory to use for map caches")
-    parser.add_argument("--model-1", type=str, default=None, help="Pickle of the model to use for player 1")
-    parser.add_argument("--model-2", type=str, default=None, help="Pickle of the model to use for player 2")
     parser.add_argument("--max-depth-1", type=int, default=25, help="")
     parser.add_argument("--max-depth-2", type=int, default=25, help="")
     parser.add_argument("--policy-trust-1", type=float, default=1.0, help="")
@@ -136,5 +137,6 @@ if __name__ == "__main__":
     parser.add_argument("--mirror-model-2", type=strtobool, default=False, help="")
     parser.add_argument("--rounds-1", type=int, default=1, help="")
     parser.add_argument("--rounds-2", type=int, default=1, help="")
+    parser.add_argument("--model-path", type=str, required=True, help="Path to the initialized model")
     __main__(parser.parse_args())
 
