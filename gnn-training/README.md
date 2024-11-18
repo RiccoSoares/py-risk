@@ -26,5 +26,5 @@ PYTHONPATH=$(pwd) python gnn-training/self-play.py \
     --num-games 4 \
     --model-path model-weights/initial_policy_value_model.pkl
 ```
-
+Map played is currently Italy.
 
