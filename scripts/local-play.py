@@ -6,7 +6,7 @@ import os
 from distutils.util import strtobool
 
 import risk
-from risk.custom_maps import create_simple_map
+import risk.custom_maps as custom_maps
 
 try:
     from risk.nn import *
@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = create_simple_map()
+    mapstruct = custom_maps.create_italy_map()
     if args.model_1 is not None:
         model1 = pickle.load(open(args.model_1, "rb"))
     else:
