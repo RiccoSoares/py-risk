@@ -7,41 +7,61 @@ from torch.optim import Adam
 from risk.replay_buffer import ReplayBuffer
 from risk.nn import Model12
 
+def create_batches(replay_buffer, batch_size):
+    random.shuffle(replay_buffer.buffer)
+    for i in range(0, len(replay_buffer.buffer), batch_size):
+        yield replay_buffer.buffer[i:i + batch_size]
+
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffer, epochs=30, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=4, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
     criterion_value = torch.nn.MSELoss()
 
     for epoch in range(epochs):
-        random.shuffle(replay_buffer.buffer)  # Shuffle the buffer to ensure random batches
+        total_policy_loss = 0.0
+        total_value_loss = 0.0
 
-        for i, exp in enumerate(replay_buffer.buffer):
-            state, target_policy, target_value = exp
-            graph_features, global_features, edges, moves = state
+        for batch in create_batches(replay_buffer, batch_size):
+            batch_policy_loss = 0.0
+            batch_value_loss = 0.0
 
-            #Forward pass
-            predicted_value, predicted_policy = network(graph_features, global_features, edges, moves)
+            for exp in batch:
+                state, target_policy, target_value = exp
+                graph_features, global_features, edges, moves = state
 
-            #Convert target policy and target value to tensors
-            target_policy = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
-            target_value = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
+                # Forward pass
+                predicted_value, predicted_policy = network(graph_features, global_features, edges, moves)
 
-            #Calculate losses
-            policy_loss = criterion_policy(predicted_policy, target_policy)
-            value_loss = criterion_value(predicted_value.squeeze(), target_value)
-            total_loss = policy_loss + value_loss
+                # Convert target policy and target value to tensors
+                target_policy_tensor = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
+                target_value_tensor = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
 
-            #Zero the gradients
+                # Calculate losses
+                policy_loss = criterion_policy(predicted_policy, target_policy_tensor)
+                value_loss = criterion_value(predicted_value.squeeze(), target_value_tensor)
+
+                # Accumulate losses
+                batch_policy_loss += policy_loss
+                batch_value_loss += value_loss
+
+            # Zero the gradients
             optimizer.zero_grad()
 
-            #Backward pass (compute gradients)
+            # Perform a backward pass on the accumulated loss
+            total_loss = batch_policy_loss + batch_value_loss
             total_loss.backward()
 
-            #Update the parameters
+            # Update the parameters once per batch
             optimizer.step()
 
-            print(f"Epoch {epoch+1}/{epochs}, Step {i+1}/{len(replay_buffer.buffer)}, Policy Loss: {policy_loss.item()}, Value Loss: {value_loss.item()}, Total Loss: {total_loss.item()}")
+            total_policy_loss += batch_policy_loss.item()
+            total_value_loss += batch_value_loss.item()
+        
+        avg_policy_loss = total_policy_loss / len(replay_buffer.buffer)
+        avg_value_loss = total_value_loss / len(replay_buffer.buffer)
+        
+        print(f"Epoch {epoch+1}/{epochs}, Policy Loss: {avg_policy_loss}, Value Loss: {avg_value_loss}")
 
     print("Training complete.")
     return network
