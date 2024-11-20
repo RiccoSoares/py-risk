@@ -15,34 +15,33 @@ def train_policy_value_network(network, replay_buffer, epochs=30, learning_rate=
 
     for epoch in range(epochs):
         random.shuffle(replay_buffer.buffer)  # Shuffle the buffer to ensure random batches
-        losses = []
-        exp = replay_buffer.buffer[0]
-       
-        state, target_policy, target_value = exp
-        graph_features, global_features, edges, moves = state
 
-        #Forward pass
-        predicted_value, predicted_policy = network(graph_features, global_features, edges, moves)
+        for i, exp in enumerate(replay_buffer.buffer):
+            state, target_policy, target_value = exp
+            graph_features, global_features, edges, moves = state
 
-        #Convert target policy and target value to tensors
-        target_policy = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
-        target_value = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
+            #Forward pass
+            predicted_value, predicted_policy = network(graph_features, global_features, edges, moves)
 
-        #Calculate losses
-        policy_loss = criterion_policy(predicted_policy, target_policy)
-        value_loss = criterion_value(predicted_value.squeeze(), target_value)
-        total_loss = policy_loss + value_loss
+            #Convert target policy and target value to tensors
+            target_policy = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
+            target_value = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
 
-        #Zero the gradients
-        optimizer.zero_grad()
+            #Calculate losses
+            policy_loss = criterion_policy(predicted_policy, target_policy)
+            value_loss = criterion_value(predicted_value.squeeze(), target_value)
+            total_loss = policy_loss + value_loss
 
-        #Backward pass (compute gradients)
-        total_loss.backward()
+            #Zero the gradients
+            optimizer.zero_grad()
 
-        #Update the parameters
-        optimizer.step()
+            #Backward pass (compute gradients)
+            total_loss.backward()
 
-        print(f"Iteration {epoch+1}, Policy Loss: {policy_loss.item()}, Value Loss: {value_loss.item()}, Total Loss: {total_loss.item()}")
+            #Update the parameters
+            optimizer.step()
+
+            print(f"Epoch {epoch+1}/{epochs}, Step {i+1}/{len(replay_buffer.buffer)}, Policy Loss: {policy_loss.item()}, Value Loss: {value_loss.item()}, Total Loss: {total_loss.item()}")
 
     print("Training complete.")
     return network
