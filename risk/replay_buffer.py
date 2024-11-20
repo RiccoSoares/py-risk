@@ -1,6 +1,7 @@
 import pickle
 from .game_types import MapState
 from .orders import DeployOrder, AttackTransferOrder
+import random
 
 class ReplayBuffer:
     def __init__(self, capacity=10000):
