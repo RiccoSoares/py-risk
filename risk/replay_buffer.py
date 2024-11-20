@@ -1,4 +1,6 @@
 import pickle
+from .game_types import MapState
+from .orders import DeployOrder, AttackTransferOrder
 
 class ReplayBuffer:
     def __init__(self, capacity=10000):
@@ -24,16 +26,30 @@ class ReplayBuffer:
     def __len__(self):
         return len(self.buffer)
 
-    def collect_training_data(self, turns_data):
+    def convert_moves(self, raw_moves):
+        moves = []
+        for move_set in raw_moves:
+            converted_set = []
+            for move in move_set:
+                if move[0] == 'DeployOrder':
+                    converted_set.append(DeployOrder(*move[1:]))
+                elif move[0] == 'AttackTransferOrder':
+                    converted_set.append(AttackTransferOrder(*move[1:]))
+                else:
+                    raise ValueError(f"Unknown move type: {move[0]}")
+            moves.append(converted_set)
+        return moves
+
+    def collect_training_data(self, turns_data, mapstruct, player, opponent):
         for turn in turns_data:
-            state = (turn['owner'], turn['armies'])
+            state = MapState(turn['armies'], turn['owner'], mapstruct)
+            graph_features, global_features, edges = state.to_tensor(player, opponent)
+            raw_moves = turn['moves'][player-1] #Players are 1-indexed
+            moves = self.convert_moves(raw_moves)
+            state = (graph_features, global_features, edges, moves)
 
-            move_probs = turn['move_probs']
-            win_values = turn['win_value']
+            move_probs = turn['move_probs'][player-1] #Adjusting indexing for player
+            win_values = turn['win_value'][player-1]
 
-            # Loop through each player's data and store it in the replay buffer
-            for player_idx in range(len(win_values)):
-                policy = move_probs[player_idx]
-                value = float(win_values[player_idx])
-                experience = (state, policy, value)
-                self.add(experience)
+            experience = (state, move_probs, win_values)
+            self.add(experience)

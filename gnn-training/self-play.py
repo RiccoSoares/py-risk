@@ -17,7 +17,7 @@ except ImportError:
 
 def __main__(args):
     mapstruct = custom_maps.create_italy_map()
-    network = Model5()
+    network = Model12()
 
     with open(args.model_path, 'rb') as f:
         network.load_state_dict(pickle.load(f))
@@ -87,7 +87,7 @@ def __main__(args):
         )
 
         data["winner"] = result
-        replay_buffer.collect_training_data(data["turns"])
+        replay_buffer.collect_training_data(data["turns"], mapstruct, 1, 2)
         print(f"Game complete: Player {result} Won")
 
         if args.output_dir:
