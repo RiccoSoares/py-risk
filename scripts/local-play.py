@@ -27,7 +27,7 @@ def __main__(args):
     print(f"Starting game on {args.map}")
 
     data = {
-        "self-play": True,
+        "self-play": False,
         "map": 1,
         "turns": [],
         "winner": None
