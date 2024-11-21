@@ -41,16 +41,21 @@ class ReplayBuffer:
             moves.append(converted_set)
         return moves
 
-    def collect_training_data(self, turns_data, mapstruct, player, opponent):
+    def collect_training_data(self, turns_data, mapstruct, p1, p2):
         for turn in turns_data:
-            state = MapState(turn['armies'], turn['owner'], mapstruct)
-            graph_features, global_features, edges = state.to_tensor(player, opponent)
-            raw_moves = turn['moves'][player-1] #Players are 1-indexed
-            moves = self.convert_moves(raw_moves)
-            state = (graph_features, global_features, edges, moves)
+            for idx in range(len(turn['moves'])):
+                #Collect experience from each player's perspective
+                player = idx + 1
+                opponent = 1 if player == 2 else 2
 
-            move_probs = turn['move_probs'][player-1] #Adjusting indexing for player
-            win_values = turn['win_value'][player-1]
+                state = MapState(turn['armies'], turn['owner'], mapstruct)
+                graph_features, global_features, edges = state.to_tensor(player, opponent)
+                raw_moves = turn['moves'][idx]
+                moves = self.convert_moves(raw_moves)
+                state = (graph_features, global_features, edges, moves)
 
-            experience = (state, move_probs, win_values)
-            self.add(experience)
+                move_probs = turn['move_probs'][idx]
+                win_values = turn['win_value'][idx]
+
+                experience = (state, move_probs, win_values)
+                self.add(experience)
