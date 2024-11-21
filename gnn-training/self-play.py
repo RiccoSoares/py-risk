@@ -30,6 +30,9 @@ def __main__(args):
 
     replay_buffer = ReplayBuffer(capacity=args.buffer_capacity)
 
+    if args.replay_buffer_path:
+        replay_buffer.load(args.replay_buffer_path)
+
     for i in range(args.num_games):
 
         print(f"\n\nStarting game {i+1} out of {args.num_games} on {args.map}")
@@ -89,18 +92,19 @@ def __main__(args):
         data["winner"] = result
         replay_buffer.collect_training_data(data["turns"], mapstruct, 1, 2)
         print(f"Game complete: Player {result} Won")
+        print("\n")
 
         if args.output_dir:
             os.makedirs(args.output_dir, exist_ok=True)
             json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
+            
+        buffer_savepth = args.replay_buffer_path if args.replay_buffer_path else f"replay-buffer/replay_buffer.pkl"
+        
+        replay_buffer.save(buffer_savepth)
+        print(f'Replay buffer saved and contains {len(replay_buffer)} experiences.')
         
         print("\n\n")
 
-    if args.output_dir:
-        os.makedirs(args.output_dir, exist_ok=True)
-        replay_buffer.save(f"{args.output_dir}/replay_buffer.pkl")
-    
-    print(f'Replay buffer saved and contains {len(replay_buffer)} experiences.')
 
 
 if __name__ == "__main__":
@@ -138,5 +142,5 @@ if __name__ == "__main__":
     parser.add_argument("--rounds-1", type=int, default=1, help="")
     parser.add_argument("--rounds-2", type=int, default=1, help="")
     parser.add_argument("--model-path", type=str, required=True, help="Path to the initialized model")
+    parser.add_argument("--replay-buffer-path", type=str, help="Path to the replay buffer file")
     __main__(parser.parse_args())
-
