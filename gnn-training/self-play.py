@@ -30,9 +30,9 @@ def __main__(args):
 
     replay_buffer = ReplayBuffer(capacity=args.buffer_capacity)
 
-    for _ in range(args.num_games):
+    for i in range(args.num_games):
 
-        print(f"\n\nStarting game on {args.map}")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on {args.map}")
 
         data = {
             "self-play": True,
