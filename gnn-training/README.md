@@ -39,3 +39,18 @@ PYTHONPATH=$(pwd) python gnn-training/train_gnn.py \
     --epochs 50 \
     --learning_rate 0.001
 ```
+
+## Evaluation
+
+We can evaluate the training in matches of the trained agent against the untrained.
+```sh
+PYTHONPATH=$(pwd) python gnn-training/eval.py \
+    --iter-1 150 \
+    --iter-2 150 \
+    --model-type-1 MCTS \
+    --model-type-2 MCTS \
+    --output-dir gnn-training/eval \
+    --num-games 100 \
+    --model-1-path model-weights/model12_initial_weights.pkl \
+    --model-2-path model-weights/model12_trained_weights.pkl
+```
