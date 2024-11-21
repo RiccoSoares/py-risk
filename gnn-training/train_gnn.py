@@ -13,7 +13,7 @@ def create_batches(replay_buffer, batch_size):
         yield replay_buffer.buffer[i:i + batch_size]
 
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=4, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
     criterion_value = torch.nn.MSELoss()
@@ -77,7 +77,7 @@ def main(args):
         network.load_state_dict(pickle.load(f))
 
     # Train the network
-    trained_network = train_policy_value_network(network, replay_buffer, epochs=args.epochs, learning_rate=args.learning_rate)
+    trained_network = train_policy_value_network(network, replay_buffer, epochs=args.epochs, batch_size=args.batch_size, learning_rate=args.learning_rate)
 
     # Save the trained network
     with open(args.trained_model_path, 'wb') as f:
@@ -91,5 +91,6 @@ if __name__ == "__main__":
     parser.add_argument("--trained_model_path", type=str, required=True, help="Path to save the trained model")
     parser.add_argument("--epochs", type=int, default=10, help="Number of epochs for training")
     parser.add_argument("--learning_rate", type=float, default=0.001, help="Learning rate for training")
+    parser.add_argument("--batch_size", type=int, default=5, help="Batch size for training")
     args = parser.parse_args()
     main(args)
