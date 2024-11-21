@@ -416,6 +416,7 @@ from torch.nn import ReLU, LeakyReLU
 from torch_geometric.nn import GCNConv, Linear, GatedGraphConv, GATConv
 from torch_geometric.nn import GATv2Conv, TransformerConv, GlobalAttention
 from torch_geometric.nn import global_max_pool, GraphNorm
+from torch_geometric.nn import AttentionalAggregation
 
 class Model12(torch.nn.Module):
     def predict_policy(self): return True
@@ -429,7 +430,7 @@ class Model12(torch.nn.Module):
         self.g1 = TransformerConv(X1_DIM, G_DIM, beta=True)
         self.g2 = TransformerConv(X1_DIM+G_DIM, G_DIM, beta=True)
 
-        self.att = GlobalAttention(
+        self.att = AttentionalAggregation(
             Sequential(Linear(X1_DIM+2*G_DIM, 1)),
             Sequential(Linear(X1_DIM+2*G_DIM, UNITS_1))
         )
