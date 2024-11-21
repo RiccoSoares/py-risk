@@ -23,3 +23,73 @@ def create_simple_map():
     ]
     
     return MapStructure(mapid=1, name="Simple Map", graph=g, bonuses=bonuses, ids=ids)
+
+def create_italy_map():
+    """
+        Italy Map with 20 territories and 10 bonuses. Link to the map: https://www.warzone.com/SinglePlayer?PreviewMap=3448
+        Regions are:
+            0 - Trentino-Alto Adige
+            1 - Veneto
+            2 - Friuli-Venezia Giulia
+            3 - Lombardia
+            4 - Emilia-Romagna
+            5 - Toscana
+            6 - Valle d'Aosta
+            7 - Piemonte
+            8 - Liguria
+            9 - Marche
+            10 - Umbria
+            11 - Lazio
+            12 - Abruzzo
+            13 - Molise
+            14 - Campania
+            15 - Puglia
+            16 - Basilicata
+            17 - Calabria
+            18 - Sicilia
+            19 - Sardegna
+    """
+    num_vertices = 20
+    g = Graph()
+    g.add_vertices(num_vertices)
+
+    connections = [
+        (0,1),(0,3),   # Trentino-Alto Adige connections
+        (1,2),(1,3),(1,4),    # Veneto connections
+                        # Friuli-Venezia Giulia connections
+        (3,4),(3,7),(3,8),  # Lombardia connections
+        (4,5),(4,8),(4,7),(4,9),         # Emilia-Romagna connections
+        (5,8),(5,9),(5,10),(5,11),        # Toscana connections
+        (6,7),         # Valle d'Aosta connections
+        (7,8),         # Piemonte connections
+        (8,19),         # Liguria connections
+        (9,10),(9,11),(9,12),        # Marche connections
+        (10,11),       # Umbria connections
+        (11,12),(11,13),(11,14),(11,19),       # Lazio connections
+        (12,13),       # Abruzzo connections
+        (13,14),(13,15),       # Molise connections
+        (14,15),(14,16),(14,18),       # Campania connections
+        (15,16),       # Puglia connections
+        (16,17),       # Basilicata connections
+        (17,18),       # Calabria connections
+        (18,19)        # Sicilia connections
+                        # Sardegna connections
+    ]
+
+    g.add_edges(connections)
+    ids = {i: i for i in range(num_vertices)}
+
+    bonuses = [
+        Bonus("East Italy", {0, 1, 2}, 3),
+        Bonus("Islands", {18, 19}, 2),
+        Bonus("Mafia", {13, 14}, 2),
+        Bonus("Middle", {5, 9, 10, 11, 12, 19}, 7),
+        Bonus("Middle Italy", {9, 10, 11, 12}, 5),
+        Bonus("North", {0, 1, 2, 3, 4, 6, 7, 8}, 9),
+        Bonus("Padania", {3, 4, 5}, 4),
+        Bonus("South", {13, 14, 15, 16, 17, 18}, 7),
+        Bonus("Terronia", {15, 16, 17}, 3),
+        Bonus("West Italy", {6, 7, 8}, 3)
+    ]
+
+    return MapStructure(mapid=1, name="Italy", graph=g, bonuses=bonuses, ids=ids)

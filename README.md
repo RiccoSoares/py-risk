@@ -4,6 +4,9 @@
 pip install -r requirements.txt
 ```
 
+## Training a GNN
+Follow instructions in ```gnn-training/```
+
 ## Local Play
 Local play without network dependencies is possible, running:
 
