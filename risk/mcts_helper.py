@@ -342,7 +342,8 @@ class RaveNode(Node):
 class Genetic(MCTS):
     def __init__(self, *args, **settings):
         self.pop_size = settings.pop('pop_size', 50)
-        self.max_dist = settings.pop('max_dist', float('inf'))
+        #self.max_dist = settings.pop('max_dist', float('inf'))
+        self.max_dist = 0
         self.rounds = settings.pop('rounds', 1)
         super().__init__(*args, **settings)
         self.elapsed = 0
@@ -383,8 +384,8 @@ class Genetic(MCTS):
             return OrderList.from_gene(ga.population[0, ga.last_generation_fitness[0].argmax()], mapstate.mapstruct, self.player)
         else:
             start = time()
-            m1s = [rand_obj(mapstate, self.player, self.opponent) for _ in range(self.pop_size)]
-            m2s = [rand_obj(mapstate, self.player, self.opponent) for _ in range(self.pop_size)]
+            m1s = [rand_move(mapstate, self.player) for _ in range(self.pop_size)]
+            m2s = [rand_move(mapstate, self.opponent) for _ in range(self.pop_size)]
 
             prepped_states = []
             prepped_states2 = []

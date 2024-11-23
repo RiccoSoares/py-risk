@@ -177,7 +177,7 @@ def create(
         random_mutation_min_val=-4,
         random_mutation_max_val=4,
         keep_parents=-1,
-        cache_fitness=False,
+        #cache_fitness=False,
     )
     ga.table = table
     ga.start_time = time()
