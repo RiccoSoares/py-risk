@@ -16,17 +16,17 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_italy_map()
+    mapstruct = custom_maps.create_banana_map()
     network = Model12()
 
-    with open(args.model_path, 'rb') as f:
-        network.load_state_dict(pickle.load(f))
+    if (args.model_path is None):
+        network = None
+    else:
+        with open(args.model_path, 'rb') as f:
+            network.load_state_dict(pickle.load(f))
 
-    # Set to evaluation mode
-    network.eval()
-
-    model1 = network
-    model2 = network
+        # Set to evaluation mode
+        network.eval()
 
     replay_buffer = ReplayBuffer(capacity=args.buffer_capacity)
 
@@ -35,7 +35,7 @@ def __main__(args):
 
     for i in range(args.num_games):
 
-        print(f"\n\nStarting game {i+1} out of {args.num_games} on {args.map}")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana")
 
         data = {
             "self-play": True,
@@ -46,7 +46,7 @@ def __main__(args):
 
 
         bot1 = args.model_type(
-                None, 1, 2, model1,
+                None, 1, 2, network,
                 iters=args.iter,
                 max_depth=args.max_depth,
                 trust_policy=args.policy_trust,
@@ -60,7 +60,7 @@ def __main__(args):
                 mirror_model=args.mirror_model,
         )
         bot2 = args.model_type(
-                None, 2, 1, model2,
+                None, 2, 1, network,
                 iters=args.iter,
                 max_depth=args.max_depth,
                 trust_policy=args.policy_trust,
@@ -125,6 +125,6 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", type=risk.mcts_helper.model_builder, default="MCTS", help="")
     parser.add_argument("--pop-size", type=int, default=50, help="")
     parser.add_argument("--mirror-model", type=strtobool, default=False, help="")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the initialized model")
+    parser.add_argument("--model-path", type=str, help="Path to the initialized model")
     parser.add_argument("--replay-buffer-path", type=str, help="Path to the replay buffer file")
     __main__(parser.parse_args())
