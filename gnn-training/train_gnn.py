@@ -70,6 +70,7 @@ def main(args):
     # Load the replay buffer
     replay_buffer = ReplayBuffer()
     replay_buffer.load(args.replay_buffer_path)
+    print('Starting training with replay buffer of size:', len(replay_buffer.buffer))
 
     # Initialize and load the model
     network = Model12()
