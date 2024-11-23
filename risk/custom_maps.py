@@ -24,6 +24,52 @@ def create_simple_map():
     
     return MapStructure(mapid=1, name="Simple Map", graph=g, bonuses=bonuses, ids=ids)
 
+def create_banana_map():
+    """
+        Banana Map with 12 territories and 4 bonuses. Link to the map: https://www.warzone.com/SinglePlayer?PreviewMap=29633
+        Regions are:
+            0 - First Bite
+            1 - Second Bite
+            2 - Right up
+            3 - Right middle
+            4 - Right down
+            5 - Left up
+            6 - Left middle
+            7 - Left down
+            8 - Third bite
+            9- The brown part
+            10- Holding place
+            11- The End
+    """
+
+    num_vertices = 12
+    g = Graph()
+    g.add_vertices(num_vertices)
+
+    connections = [
+        (0,1),# First Bite connections
+        (1,2),(1,8),(1,9), #Second Bite connections
+        (2,3),(2,9),# Right up connections
+        (3,4),# Right middle connections
+        (4,11),# Right down connections
+        (5,6),(5,8),# Left up connections
+        (6,7),(6,8),# Left middle connections
+                        # Left down connections
+        (8,9),(8,10),# Third bite connections
+        (9,10),(9,11),# The brown part connections
+        (10,11)# Holding place connections
+                # The End connections
+    ]
+
+    g.add_edges(connections)
+    ids = {i: i for i in range(num_vertices)}
+
+    bonuses = [ Bonus("Banana", {0, 1, 8}, 2),
+                Bonus("Bottom Scale", {9, 10, 11}, 2),
+                Bonus("Left Scale", {5, 6, 7}, 2),
+                Bonus("Right Scale", {2, 3, 4}, 2)]
+    return MapStructure(mapid=1, name="Italy", graph=g, bonuses=bonuses, ids=ids)
+
 def create_italy_map():
     """
         Italy Map with 20 territories and 10 bonuses. Link to the map: https://www.warzone.com/SinglePlayer?PreviewMap=3448
