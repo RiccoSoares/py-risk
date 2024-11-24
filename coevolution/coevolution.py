@@ -32,9 +32,11 @@ class Coevolution:
         self.best_individual = None
         self.best_fitness = float('-inf')
         self.best_generation = 0
-        self.fitness_table = np.zeros((populations_size, populations_size))
+        self.relational_fitness_table = np.zeros((populations_size, populations_size))
         self.population1 = []
         self.population2 = []
+        self.population1_fitness = []
+        self.population2_fitness = []
         self.initialize_pops_with_gnn = initialize_pops_with_gnn
     
     def evolve(self):
@@ -62,14 +64,17 @@ class Coevolution:
         ]
 
     def evaluate_populations(self):
-        self.fitness_table[:] = 0
+        self.relational_fitness_table[:] = 0
         for i in range(self.populations_size):
             for j in range(self.populations_size):
                 pop1_individual = OrderList.from_gene(self.population1[i], self.mapstruct, self.player1)
                 pop2_individual = OrderList.from_gene(self.population2[j], self.mapstruct, self.player2)
-                self.fitness_table[i, j] = self.fitness(pop1_individual, pop2_individual)
+                self.relational_fitness_table[i, j] = self.relational_fitness(pop1_individual, pop2_individual)
 
-    def fitness(self, pop1_individual, pop2_individual):
+        self.population1_fitness = np.mean(self.relational_fitness_table, axis=1)
+        self.population2_fitness = np.mean(self.relational_fitness_table, axis=0)
+
+    def relational_fitness(self, pop1_individual, pop2_individual):
         resulting_board = (pop1_individual | pop2_individual)(self.mapstate)
         return self.evaluate_board_position(resulting_board)
 

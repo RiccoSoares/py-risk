@@ -52,11 +52,11 @@ class TestCoevolution(unittest.TestCase):
     def test_evaluate_populations(self):
         self.coevolution.initialize_populations()
         self.coevolution.evaluate_populations()
-        self.assertEqual(self.coevolution.fitness_table.shape,
+        self.assertEqual(self.coevolution.relational_fitness_table.shape,
          (self.populations_size, self.populations_size)
         )
         for i in range(self.populations_size):
             for j in range(self.populations_size):
-                self.assertIsInstance(self.coevolution.fitness_table[i][j], float)
+                self.assertIsInstance(self.coevolution.relational_fitness_table[i][j], float)
 if __name__ == '__main__':
     unittest.main()
