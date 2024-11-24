@@ -40,14 +40,16 @@ class TestCoevolution(unittest.TestCase):
         self.assertEqual(len(self.coevolution.population1), self.populations_size)
         self.assertEqual(len(self.coevolution.population2), self.populations_size)
         for i in range(self.populations_size):
-            p1_individual = OrderList.from_gene(
-                self.coevolution.population1[i], self.mapstate.mapstruct, self.player1
+            p1_individual_genes = OrderList.from_gene(
+                self.coevolution.population1[i].genes, self.mapstate.mapstruct, self.player1
             )
-            p2_individual = OrderList.from_gene(
-                self.coevolution.population2[i], self.mapstate.mapstruct, self.player2
+            p2_individual_genes = OrderList.from_gene(
+                self.coevolution.population2[i].genes, self.mapstate.mapstruct, self.player2
             )
-            self.assertIsInstance(p1_individual, OrderList)
-            self.assertIsInstance(p2_individual, OrderList)
+            self.assertIsInstance(p1_individual_genes, OrderList)
+            self.assertIsInstance(p2_individual_genes, OrderList)
+            self.assertIsInstance(self.coevolution.population1[i], coevolution.Individual)
+            self.assertIsInstance(self.coevolution.population2[i], coevolution.Individual)
 
     def test_evaluate_populations(self):
         self.coevolution.initialize_populations()
@@ -58,5 +60,6 @@ class TestCoevolution(unittest.TestCase):
         for i in range(self.populations_size):
             for j in range(self.populations_size):
                 self.assertIsInstance(self.coevolution.relational_fitness_table[i][j], float)
+
 if __name__ == '__main__':
     unittest.main()

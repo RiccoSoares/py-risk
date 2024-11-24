@@ -2,11 +2,28 @@ import risk
 from risk.orders import *
 from risk.rand import rand_move
 import numpy as np
+from risk.game_types import MapState
+
+class Individual:
+    def __init__(self, genes, index):
+        self.genes = genes
+        self.fitness = None
+        self.index = index
+
+    def __lt__(self, other):
+        return self.fitness < other.fitness
+    
+    def __gt__(self, other):
+        return self.fitness > other.fitness
+    
+    def __eq__(self, other):
+        return self.fitness == other.fitness
 
 class Coevolution:
-    def __init__(self, mapstate,
-     player1, 
-     player2,
+    def __init__(self,
+     mapstate: MapState,
+     player1: int, 
+     player2: int,
      gnn_model, 
      populations_size= 10, 
      generations= 5, 
@@ -35,8 +52,6 @@ class Coevolution:
         self.relational_fitness_table = np.zeros((populations_size, populations_size))
         self.population1 = []
         self.population2 = []
-        self.population1_fitness = []
-        self.population2_fitness = []
         self.initialize_pops_with_gnn = initialize_pops_with_gnn
     
     def evolve(self):
@@ -53,43 +68,43 @@ class Coevolution:
             apply_elitism()
 
     def initialize_populations(self):
-        self.population1 = [
-            rand_move(self.mapstate, self.player1).to_gene(self.mapstruct) 
-            for _ in range(self.populations_size)
-        ]
+        for i in range(self.populations_size):
+            self.population1.append(
+                Individual(rand_move(self.mapstate, self.player1).to_gene(self.mapstruct), i)
+            )
 
-        self.population2 = [
-            rand_move(self.mapstate, self.player2).to_gene(self.mapstruct) 
-            for _ in range(self.populations_size)
-        ]
+            self.population2.append(
+                Individual(rand_move(self.mapstate, self.player2).to_gene(self.mapstruct), i)
+            )
 
     def evaluate_populations(self):
         self.relational_fitness_table[:] = 0
         for i in range(self.populations_size):
             for j in range(self.populations_size):
-                pop1_individual = OrderList.from_gene(self.population1[i], self.mapstruct, self.player1)
-                pop2_individual = OrderList.from_gene(self.population2[j], self.mapstruct, self.player2)
-                self.relational_fitness_table[i, j] = self.relational_fitness(pop1_individual, pop2_individual)
+                self.relational_fitness_table[i, j] = self.relational_fitness(
+                    self.population1[i], self.population2[j]
+                )
 
-        self.population1_fitness = np.mean(self.relational_fitness_table, axis=1)
-        self.population2_fitness = np.mean(self.relational_fitness_table, axis=0)
+        for i in range(self.populations_size):
+            self.population1[i].fitness = np.mean(self.relational_fitness_table[i,:])
+            self.population2[i].fitness = np.mean(self.relational_fitness_table[:,i])
 
     def relational_fitness(self, pop1_individual, pop2_individual):
-        resulting_board = (pop1_individual | pop2_individual)(self.mapstate)
+        pop1_order = OrderList.from_gene(pop1_individual.genes, self.mapstruct, self.player1)
+        pop2_order = OrderList.from_gene(pop2_individual.genes, self.mapstruct, self.player2)
+
+        resulting_board = (pop1_order | pop2_order)(self.mapstate)
         return self.evaluate_board_position(resulting_board)
 
     def evaluate_board_position(self, mapstate):
         #will get the board position and pass to the neural network model
         return 1
 
-    def consult_fitness(self, individual):
+    def mutate_populations(self):
         pass
 
     def apply_elitism(self):
         pass
 
     def apply_crossover(self):
-        pass
-
-    def mutate_populations(self):
         pass
