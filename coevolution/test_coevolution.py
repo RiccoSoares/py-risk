@@ -61,6 +61,17 @@ class TestCoevolution(unittest.TestCase):
         for i in range(self.populations_size):
             for j in range(self.populations_size):
                 self.assertIsInstance(self.coevolution.relational_fitness_table[i][j], float)
+    
+    @patch.object(coevolution.Coevolution, 'evaluate_board_position', return_value=1.0)
+    def test_evaluate_board_position_mocked(self, mock_evaluate_board_position):
+        self.coevolution.initialize_populations()
+        self.coevolution.evaluate_populations()
+
+        for i in range(self.populations_size):
+            self.assertEqual(self.coevolution.population1[i].fitness, 1.0)
+            self.assertEqual(self.coevolution.population2[i].fitness, 1.0)
+
+        mock_evaluate_board_position.assert_called()
 
     def test_define_elites(self):
         self.coevolution.initialize_populations()
