@@ -31,11 +31,12 @@ class Coevolution:
         self.best_individual = None
         self.best_fitness = float('-inf')
         self.best_generation = 0
-        self.fitnesses = []
         self.eval_table = np.zeros((populations_size, populations_size))
         self.eval_table_ready = [False]
         self.population1 = []
         self.population2 = []
+        self.population1_fitnesses = []
+        self.population2_fitnesses = []
     
     def evolve(self):
         pass
