@@ -48,7 +48,6 @@ class Coevolution:
         self.population = []
         self.best_individual = None
         self.best_fitness = float('-inf')
-        self.best_generation = 0
         self.relational_fitness_table = np.zeros((populations_size, populations_size))
         self.population1 = []
         self.population2 = []
@@ -61,11 +60,10 @@ class Coevolution:
             if timeout is not np.inf and time() > timeout:
                 break
 
-            evaluate_populations()
-            apply_crossover()
-            mutate_populations()
-            evaluate_populations()
-            apply_elitism()
+            self.evaluate_populations()
+            self.apply_crossover()
+            self.mutate_populations()
+            self.evaluate_populations()
 
     def initialize_populations(self):
         for i in range(self.populations_size):
@@ -101,10 +99,31 @@ class Coevolution:
         return 1
 
     def mutate_populations(self):
-        pass
+        for population in [self.population1, self.population2]:
+            for individual in population:
+                if np.random.rand() < self.mutation_rate:
+                    self.mutate(individual)
+        
+    def mutate(self, individual):
+        #yet to implement mutation logic
+        individual.genes = rand_move(self.mapstate, self.player1).to_gene(self.mapstruct)
 
     def apply_elitism(self):
         pass
 
     def apply_crossover(self):
-        pass
+        self.population1 = self.crossover_population(self.population1)
+        self.population2 = self.crossover_population(self.population2)
+        
+    def crossover_population(self, population):
+        offspring = []
+        while len(offspring) < self.populations_size:
+            parent1, parent2 = np.random.choice(population, 2, replace=False)
+            child1, child2 = self.crossover(parent1, parent2)
+            offspring.extend([child1, child2])
+
+        return offspring
+
+    def crossover(self, parent1, parent2):
+        #yet to implement crossover logic
+        return parent1, parent2
