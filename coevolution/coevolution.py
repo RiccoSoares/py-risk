@@ -14,6 +14,7 @@ class Coevolution:
      crossover_rate= 0.7, 
      tournament_size= 3, 
      elitism= 1,
+     initialize_pops_with_gnn= False,
      timeout= np.inf):
 
         self.mapstate = mapstate
@@ -37,13 +38,55 @@ class Coevolution:
         self.population2 = []
         self.population1_fitnesses = []
         self.population2_fitnesses = []
+        self.initialize_pops_with_gnn = initialize_pops_with_gnn
     
     def evolve(self):
-        pass
+        initialize_populations()
+        for generation in range(self.generations):
+
+            if timeout is not np.inf and time() > timeout:
+                break
+
+            evaluate_populations()
+            apply_crossover()
+            mutate_populations()
+            evaluate_populations()
+            apply_elitism()
 
     def initialize_populations(self):
-        self.population1 = [rand_move(self.mapstate, self.player1).to_gene(self.mapstruct) for _ in range(self.populations_size)]
-        self.population2 = [rand_move(self.mapstate, self.player2).to_gene(self.mapstruct) for _ in range(self.populations_size)]
+        self.population1 = [
+            rand_move(self.mapstate, self.player1).to_gene(self.mapstruct) 
+            for _ in range(self.populations_size)
+        ]
 
-    def fitness(self, individual):
+        self.population2 = [
+            rand_move(self.mapstate, self.player2).to_gene(self.mapstruct) 
+            for _ in range(self.populations_size)
+        ]
+
+    def evaluate_populations(self):
+        self.eval_table[:] = 0
+        for i in range(self.populations_size):
+            for j in range(self.populations_size):
+                pop1_individual = OrderList.from_gene(self.population1[i], self.mapstruct, self.player1)
+                pop2_individual = OrderList.from_gene(self.population2[j], self.mapstruct, self.player2)
+                self.eval_table[i, j] = fitness(pop1_individual, pop2_individual)
+
+    def apply_crossover(self):
+        pass
+
+    def mutate_populations(self):
+        pass
+
+    def evaluate_board_position(self, mapstate):
+        return 1
+
+    def fitness(self, pop1_individual, pop2_individual):
+        resulting_board = (pop1_individual | pop2_individual)(self.mapstate)
+        return evaluate_board_position(resulting_board)
+
+    def consult_fitness(self, individual):
+        pass
+
+    def apply_elitism(self):
         pass

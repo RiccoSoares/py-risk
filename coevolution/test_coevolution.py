@@ -40,8 +40,12 @@ class TestCoevolution(unittest.TestCase):
         self.assertEqual(len(self.coevolution.population1), self.populations_size)
         self.assertEqual(len(self.coevolution.population2), self.populations_size)
         for i in range(self.populations_size):
-            p1_individual = OrderList.from_gene(self.coevolution.population1[i], self.mapstate.mapstruct, self.player1)
-            p2_individual = OrderList.from_gene(self.coevolution.population2[i], self.mapstate.mapstruct, self.player2)
+            p1_individual = OrderList.from_gene(
+                self.coevolution.population1[i], self.mapstate.mapstruct, self.player1
+            )
+            p2_individual = OrderList.from_gene(
+                self.coevolution.population2[i], self.mapstate.mapstruct, self.player2
+            )
             self.assertIsInstance(p1_individual, OrderList)
             self.assertIsInstance(p2_individual, OrderList)
 
