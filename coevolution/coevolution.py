@@ -59,7 +59,7 @@ class Coevolution:
         self.start_time = time()
     
     def evolve(self):
-        initialize_populations()
+        self.initialize_populations()
         for generation in range(self.generations):
 
             if self.timeout is not np.inf and time() - self.start_time > self.timeout:

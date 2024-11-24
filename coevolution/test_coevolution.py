@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from coevolution import coevolution
 import risk
 from risk.orders import *
@@ -60,6 +61,18 @@ class TestCoevolution(unittest.TestCase):
         for i in range(self.populations_size):
             for j in range(self.populations_size):
                 self.assertIsInstance(self.coevolution.relational_fitness_table[i][j], float)
+
+    def test_define_elites(self):
+        self.coevolution.initialize_populations()
+
+        for ind in self.coevolution.population1:
+            ind.fitness = ind.index
+        for ind in self.coevolution.population2:
+            ind.fitness = ind.index
+
+        self.coevolution.define_elites()
+        self.assertEqual(self.coevolution.population1_elite[0].fitness, self.populations_size - 1)
+        self.assertEqual(self.coevolution.population2_elite[0].fitness, self.populations_size - 1)
 
 if __name__ == '__main__':
     unittest.main()
