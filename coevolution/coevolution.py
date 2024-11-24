@@ -3,6 +3,7 @@ from risk.orders import *
 from risk.rand import rand_move
 import numpy as np
 from risk.game_types import MapState
+from time import time
 
 class Individual:
     def __init__(self, genes, index):
@@ -52,12 +53,14 @@ class Coevolution:
         self.population1 = []
         self.population2 = []
         self.initialize_pops_with_gnn = initialize_pops_with_gnn
+        self.timeout = timeout
+        self.start_time = time()
     
     def evolve(self):
         initialize_populations()
         for generation in range(self.generations):
 
-            if timeout is not np.inf and time() > timeout:
+            if self.timeout is not np.inf and time.time() - self.start_time > self.timeout:
                 break
 
             self.evaluate_populations()
@@ -122,7 +125,7 @@ class Coevolution:
             child1, child2 = self.crossover(parent1, parent2)
             offspring.extend([child1, child2])
 
-        return offspring
+        return offspring[:self.populations_size]
 
     def crossover(self, parent1, parent2):
         #yet to implement crossover logic
