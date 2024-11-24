@@ -342,8 +342,8 @@ class RaveNode(Node):
 class Genetic(MCTS):
     def __init__(self, *args, **settings):
         self.pop_size = settings.pop('pop_size', 50)
-        #self.max_dist = settings.pop('max_dist', float('inf'))
-        self.max_dist = 0
+        self.max_dist = settings.pop('max_dist', float('inf'))
+        #self.max_dist = 0
         self.rounds = settings.pop('rounds', 1)
         super().__init__(*args, **settings)
         self.elapsed = 0
