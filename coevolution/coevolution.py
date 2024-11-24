@@ -32,12 +32,9 @@ class Coevolution:
         self.best_individual = None
         self.best_fitness = float('-inf')
         self.best_generation = 0
-        self.eval_table = np.zeros((populations_size, populations_size))
-        self.eval_table_ready = [False]
+        self.fitness_table = np.zeros((populations_size, populations_size))
         self.population1 = []
         self.population2 = []
-        self.population1_fitnesses = []
-        self.population2_fitnesses = []
         self.initialize_pops_with_gnn = initialize_pops_with_gnn
     
     def evolve(self):
@@ -65,28 +62,29 @@ class Coevolution:
         ]
 
     def evaluate_populations(self):
-        self.eval_table[:] = 0
+        self.fitness_table[:] = 0
         for i in range(self.populations_size):
             for j in range(self.populations_size):
                 pop1_individual = OrderList.from_gene(self.population1[i], self.mapstruct, self.player1)
                 pop2_individual = OrderList.from_gene(self.population2[j], self.mapstruct, self.player2)
-                self.eval_table[i, j] = fitness(pop1_individual, pop2_individual)
-
-    def apply_crossover(self):
-        pass
-
-    def mutate_populations(self):
-        pass
-
-    def evaluate_board_position(self, mapstate):
-        return 1
+                self.fitness_table[i, j] = self.fitness(pop1_individual, pop2_individual)
 
     def fitness(self, pop1_individual, pop2_individual):
         resulting_board = (pop1_individual | pop2_individual)(self.mapstate)
-        return evaluate_board_position(resulting_board)
+        return self.evaluate_board_position(resulting_board)
+
+    def evaluate_board_position(self, mapstate):
+        #will get the board position and pass to the neural network model
+        return 1
 
     def consult_fitness(self, individual):
         pass
 
     def apply_elitism(self):
+        pass
+
+    def apply_crossover(self):
+        pass
+
+    def mutate_populations(self):
         pass

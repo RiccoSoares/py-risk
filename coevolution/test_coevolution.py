@@ -49,5 +49,14 @@ class TestCoevolution(unittest.TestCase):
             self.assertIsInstance(p1_individual, OrderList)
             self.assertIsInstance(p2_individual, OrderList)
 
+    def test_evaluate_populations(self):
+        self.coevolution.initialize_populations()
+        self.coevolution.evaluate_populations()
+        self.assertEqual(self.coevolution.fitness_table.shape,
+         (self.populations_size, self.populations_size)
+        )
+        for i in range(self.populations_size):
+            for j in range(self.populations_size):
+                self.assertIsInstance(self.coevolution.fitness_table[i][j], float)
 if __name__ == '__main__':
     unittest.main()
