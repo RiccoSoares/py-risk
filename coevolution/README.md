@@ -1,5 +1,5 @@
 # Coevolution
-Module to perform coevolution of two populations of moves
+Module to perform coevolution of two populations applied to RISK
 
 ## Run unit tests:
 at root (py-risk):
