@@ -52,6 +52,8 @@ class Coevolution:
         self.relational_fitness_table = np.zeros((populations_size, populations_size))
         self.population1 = []
         self.population2 = []
+        self.population1_elite = []
+        self.population2_elite = []
         self.initialize_pops_with_gnn = initialize_pops_with_gnn
         self.timeout = timeout
         self.start_time = time()
@@ -60,13 +62,15 @@ class Coevolution:
         initialize_populations()
         for generation in range(self.generations):
 
-            if self.timeout is not np.inf and time.time() - self.start_time > self.timeout:
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
                 break
 
             self.evaluate_populations()
+            self.define_elites()
             self.apply_crossover()
             self.mutate_populations()
             self.evaluate_populations()
+            self.apply_elitism()
 
     def initialize_populations(self):
         for i in range(self.populations_size):
@@ -112,20 +116,37 @@ class Coevolution:
         individual.genes = rand_move(self.mapstate, self.player1).to_gene(self.mapstruct)
 
     def apply_elitism(self):
-        pass
+        self.population1.sort(reverse=True)
+        self.population2.sort(reverse=True)
+
+        pop1_best_offsprings = self.population1[:self.populations_size - len(self.population1_elite)]
+        pop2_best_offsprings = self.population2[:self.populations_size - len(self.population2_elite)]
+
+        self.population1 = self.population1_elite + pop1_best_offsprings
+        self.population2 = self.population2_elite + pop2_best_offsprings
+
+    def define_elites(self):
+        self.population1.sort(reverse=True)
+        self.population2.sort(reverse=True)
+
+        self.population1_elite = self.population1[:self.elitism]
+        self.population2_elite = self.population2[:self.elitism]
 
     def apply_crossover(self):
-        self.population1 = self.crossover_population(self.population1)
-        self.population2 = self.crossover_population(self.population2)
+        offspring1 = self.crossover_population(self.population1)
+        offspring2 = self.crossover_population(self.population2)
+
+        self.population1 = self.population1_elite + offspring1[:self.populations_size - len(self.population1_elite)]
+        self.population2 = self.population2_elite + offspring2[:self.populations_size - len(self.population2_elite)]
         
     def crossover_population(self, population):
         offspring = []
-        while len(offspring) < self.populations_size:
+        while len(offspring) < self.populations_size - len(self.population1_elite):
             parent1, parent2 = np.random.choice(population, 2, replace=False)
             child1, child2 = self.crossover(parent1, parent2)
             offspring.extend([child1, child2])
 
-        return offspring[:self.populations_size]
+        return offspring[:self.populations_size - len(self.population1_elite)]
 
     def crossover(self, parent1, parent2):
         #yet to implement crossover logic
