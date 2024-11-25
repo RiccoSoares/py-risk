@@ -180,5 +180,12 @@ class Coevolution:
         return offspring[:self.populations_size - len(self.population1_elite)]
 
     def crossover(self, parent1, parent2):
-        #yet to implement crossover logic
-        return parent1, parent2
+        crossover_point = np.random.randint(1, len(parent1.genes) - 1)
+
+        child1_genes = np.concatenate((parent1.genes[:crossover_point], parent2.genes[crossover_point:]))
+        child2_genes = np.concatenate((parent2.genes[:crossover_point], parent1.genes[crossover_point:]))
+
+        child1 = Individual(child1_genes, parent1.index)
+        child2 = Individual(child2_genes, parent2.index)
+
+        return child1, child2
