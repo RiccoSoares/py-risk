@@ -112,8 +112,39 @@ class Coevolution:
                     self.mutate(individual)
         
     def mutate(self, individual):
-        #yet to implement mutation logic
-        individual.genes = rand_move(self.mapstate, self.player1).to_gene(self.mapstruct)
+        edges = self.mapstruct.edgeLabels()
+        offspring = individual.genes.copy()
+
+        offspring[offspring < 0] = 0
+
+        attacks_from = {src: np.zeros(len(edges), dtype=bool) for src in range(len(self.mapstate))}
+        for (src, dst), index in edges.items():
+            if src != dst:
+                attacks_from[src][index] = True
+
+        player = self.mapstate.owner[individual.index]
+        for (src, dst), index in edges.items():
+            if self.mapstate.owner[src] != player:
+                offspring[index] = 0
+
+        deployment_sum = offspring[:len(self.mapstate)].sum()
+        if deployment_sum > self.mapstate.income(player):
+            diff = deployment_sum - self.mapstate.income(player)
+            while diff > 0:
+                i = np.random.choice(np.where(offspring[:len(self.mapstate)] > 0)[0])
+                offspring[i] -= 1
+                deployment_sum -= 1
+                diff -= 1
+
+        elif deployment_sum < self.mapstate.income(player):
+            diff = self.mapstate.income(player) - deployment_sum
+            while diff > 0:
+                i = np.random.choice(np.where(self.mapstate.owner == player)[0])
+                offspring[i] += 1
+                deployment_sum += 1
+                diff -= 1
+
+        individual.genes = offspring
 
     def apply_elitism(self):
         self.population1.sort(reverse=True)
