@@ -115,8 +115,10 @@ class Coevolution:
         edges = self.mapstruct.edgeLabels()
         offspring = individual.genes.copy()
 
+        # Set genes to zero if they are negative
         offspring[offspring < 0] = 0
 
+        # Define ownership-based attacks_from constraints
         attacks_from = {src: np.zeros(len(edges), dtype=bool) for src in range(len(self.mapstate))}
         for (src, dst), index in edges.items():
             if src != dst:
@@ -125,8 +127,10 @@ class Coevolution:
         player = self.mapstate.owner[individual.index]
         for (src, dst), index in edges.items():
             if self.mapstate.owner[src] != player:
+                # Set invalid attack moves from unowned territories to zero
                 offspring[index] = 0
 
+        # Ensure valid deployment sums
         deployment_sum = offspring[:len(self.mapstate)].sum()
         if deployment_sum > self.mapstate.income(player):
             diff = deployment_sum - self.mapstate.income(player)
@@ -143,6 +147,34 @@ class Coevolution:
                 offspring[i] += 1
                 deployment_sum += 1
                 diff -= 1
+
+        # Apply mutation percentage to introduce variability
+        for i in range(len(offspring)):
+            if np.random.rand() < self.mutation_rate:
+                mutation_value = np.random.randint(-3, 4)  # Random mutation within a small range
+                offspring[i] += mutation_value
+
+                # Ensure attacks remain valid after mutation
+                if i >= len(self.mapstate):
+                    src, dst = list(edges.keys())[list(edges.values()).index(i)]
+                    if offspring[i] < 0 or self.mapstate.owner[src] != player:
+                        offspring[i] = 0
+
+        # Set negative values to zero again after mutation
+        offspring[offspring < 0] = 0
+
+        # Ensure no attack exceeds available armies
+        for src in range(len(self.mapstate)):
+            deployment = offspring[edges[src, src]]
+            available = self.mapstate.armies[src] + deployment
+            over_by = offspring[attacks_from[src]].sum()
+            while over_by > available:
+                k = np.random.choice(np.where(attacks_from[src])[0])
+                offspring[k] -= min(offspring[k], over_by)
+                over_by = offspring[attacks_from[src]].sum()
+
+        # Ensure deployment sums match income
+        assert (offspring[:len(self.mapstate)].sum() == self.mapstate.income(player))
 
         individual.genes = offspring
 
