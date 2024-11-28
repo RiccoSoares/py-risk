@@ -27,11 +27,12 @@ class Coevolution:
      player2: int,
      gnn_model, 
      populations_size= 20, 
-     generations= 10, 
-     mutation_rate= 0.05, 
+     generations= 10,  
      crossover_rate= 0.2, 
      tournament_size= 3, 
      elitism= 1,
+     mutation_rate= 0.05,
+     mutation_percent_genes = 0.05,
      initialize_pops_with_gnn= False,
      timeout= np.inf):
 
@@ -42,10 +43,11 @@ class Coevolution:
         self.gnn_model = gnn_model
         self.populations_size = populations_size
         self.generations = generations
-        self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
         self.tournament_size = tournament_size
         self.elitism = elitism
+        self.mutation_rate = mutation_rate
+        self.mutation_percent_genes = mutation_percent_genes
         self.population = []
         self.best_individual = None
         self.relational_fitness_table = np.zeros((populations_size, populations_size))
@@ -120,7 +122,7 @@ class Coevolution:
     def mutate(self, individual, player):
         offspring_genes = individual.genes.copy()
         for i in range(len(offspring_genes)):
-            if np.random.rand() < self.mutation_rate:
+            if np.random.rand() < self.mutation_percent_genes:
                 offspring_genes[i] = np.random.randint(0, 10)
 
         return self.correct_mutation(offspring_genes, player)

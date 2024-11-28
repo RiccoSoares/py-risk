@@ -21,10 +21,11 @@ class TestCoevolution(unittest.TestCase):
         self.gnn_model = LinearModel()
         self.populations_size = 10
         self.generations = 5
-        self.mutation_rate = 0.04
         self.crossover_rate = 0.7
         self.tournament_size = 3
         self.elitism = 1
+        self.mutation_rate = 0.05
+        self.mutation_percent_genes = 0.05
         self.timeout = float('inf')
         self.coevolution = coevolution.Coevolution(
             self.mapstate, 
