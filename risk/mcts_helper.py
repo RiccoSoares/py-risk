@@ -8,6 +8,7 @@ from .orders import OrderList
 from time import time
 import math
 from .utils import TimeManager
+from coevolution import coevolution
 
 def model_builder(model_type):
     types = {
@@ -342,8 +343,8 @@ class RaveNode(Node):
 class Genetic(MCTS):
     def __init__(self, *args, **settings):
         self.pop_size = settings.pop('pop_size', 50)
-        #self.max_dist = settings.pop('max_dist', float('inf'))
-        self.max_dist = 0
+        self.max_dist = settings.pop('max_dist', float('inf'))
+        #self.max_dist = 0
         self.rounds = settings.pop('rounds', 1)
         super().__init__(*args, **settings)
         self.elapsed = 0
@@ -363,25 +364,25 @@ class Genetic(MCTS):
 
         from torch_geometric.loader import DataLoader
         if dist_to_opponent <= self.max_dist:
-            ga = create(
-                mapstate,
-                iterations=self.iters,
-                pop_size=self.pop_size,
-                p1=self.player,
-                p2=self.opponent,
-                model=self.model,
-                timeout=self.timeout,
-                mutation_rate=self.exploration,
-                mirror_model=self.mirror_model,
-                rounds=self.rounds,
-            )
             start = time()
-            ga.run()
+            c = coevolution.Coevolution(
+                mapstate,
+                self.player,
+                self.opponent,
+                self.model,
+            )
+            c.evolve()
             self.elapsed = time() - start
-            self.root_node.win_value += ga.last_generation_fitness[0].sum()
-            self.root_node.visits += ga.population.shape[1]
-            TimeManager.print()
-            return OrderList.from_gene(ga.population[0, ga.last_generation_fitness[0].argmax()], mapstate.mapstruct, self.player)
+            best_player_pop_individual = c.population1[0]
+            best_opponent_pop_individual = c.population2[0]
+
+            best_player_move = OrderList.from_gene(best_player_pop_individual.genes, mapstate.mapstruct, self.player)
+
+            self.root_node.win_value += best_player_pop_individual.fitness - best_opponent_pop_individual.fitness
+            self.root_node.visits += c.generations*c.populations_size
+
+            return best_player_move
+            
         else:
             start = time()
             m1s = [rand_move(mapstate, self.player) for _ in range(self.pop_size)]
@@ -420,5 +421,6 @@ class Genetic(MCTS):
             self.elapsed = time() - start
             self.root_node.win_value = comb_tbl.mean(1).max()
             self.root_node.visits = 1
+
             return m
 

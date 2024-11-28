@@ -4,7 +4,7 @@ from risk.rand import rand_move
 from risk.objectives import rand_obj
 from time import time
 import numpy as np
-import pygad
+#import pygad
 
 try:
     import torch
@@ -34,7 +34,6 @@ def create(
         mutation_rate=0.04,
         mirror_model=False,
     ):
-    print(rounds)
     mapstruct = mapstate.mapstruct
 
     table = np.zeros((pop_size, pop_size))
