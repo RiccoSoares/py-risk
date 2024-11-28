@@ -29,7 +29,7 @@ class Coevolution:
      populations_size= 20, 
      generations= 10, 
      mutation_rate= 0.05, 
-     crossover_rate= 0.07, 
+     crossover_rate= 0.2, 
      tournament_size= 3, 
      elitism= 1,
      initialize_pops_with_gnn= False,
@@ -146,16 +146,16 @@ class Coevolution:
         offspring1 = self.crossover_population(self.population1)
         offspring2 = self.crossover_population(self.population2)
 
-        self.population1 = self.population1_elite + offspring1[:self.populations_size - len(self.population1_elite)]
-        self.population2 = self.population2_elite + offspring2[:self.populations_size - len(self.population2_elite)]
+        self.population1 = offspring1
+        self.population2 = offspring2
         
     def crossover_population(self, population):
         offspring = []
-        while len(offspring) < self.populations_size - len(self.population1_elite):
+        while len(offspring) < self.populations_size:
             parent1, parent2 = np.random.choice(population, 2, replace=False)
             child1, child2 = self.crossover(parent1, parent2)
             offspring.extend([child1, child2])
-        return offspring[:self.populations_size - len(self.population1_elite)]
+        return offspring[:self.populations_size]
 
     def crossover(self, parent1, parent2):
         crossover_point = np.random.randint(1, len(parent1.genes) - 1)
