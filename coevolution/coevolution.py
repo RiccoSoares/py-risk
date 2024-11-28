@@ -28,8 +28,8 @@ class Coevolution:
      gnn_model, 
      populations_size= 20, 
      generations= 10, 
-     mutation_rate= 0.04, 
-     crossover_rate= 0.7, 
+     mutation_rate= 0.05, 
+     crossover_rate= 0.07, 
      tournament_size= 3, 
      elitism= 1,
      initialize_pops_with_gnn= False,
@@ -112,13 +112,18 @@ class Coevolution:
         return self.gnn_model(prep) * 0.5
 
     def mutate_populations(self):
-        for population in [self.population1, self.population2]:
-            for individual in population:
-                if np.random.rand() < self.mutation_rate:
-                    self.mutate(individual)
+        for i in range(self.populations_size):
+            if np.random.rand() < self.mutation_rate:
+                self.mutate(self.population1[i], self.player1)
+                self.mutate(self.population2[i], self.player2)
         
-    def mutate(self, individual):
-        pass
+    def mutate(self, individual, player):
+        offspring_genes = individual.genes.copy()
+        for i in range(len(offspring_genes)):
+            if np.random.rand() < self.mutation_rate:
+                offspring_genes[i] = np.random.randint(0, 10)
+
+        return self.correct_mutation(offspring_genes, player)
 
     def apply_elitism(self):
         self.population1.sort(reverse=True)
@@ -161,3 +166,20 @@ class Coevolution:
         child1 = Individual(child1_genes, parent1.index)
         child2 = Individual(child2_genes, parent2.index)
         return child1, child2
+
+    def correct_mutation(self, offset_genes, player):
+        edges = self.mapstruct.edgeLabels()
+
+        # Remove attacks from unowned territories
+        for (src, dst), index in edges.items():
+            if self.mapstate.owner[src] != player:
+                offset_genes[index] = 0
+        # Remove excess deployments
+        while offset_genes[:len(self.mapstate)].sum() > self.mapstate.income(player):
+            j = np.random.choice(np.where(offset_genes[:len(self.mapstate)] > 0)[0])
+            offset_genes[j] -= 1
+        # Add missing deployments
+        while offset_genes[:len(self.mapstate)].sum() < self.mapstate.income(player):
+            j = np.random.choice(np.where(self.mapstate.owner == player)[0])
+            offset_genes[j] += 1
+            
