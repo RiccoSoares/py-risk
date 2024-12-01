@@ -17,7 +17,7 @@ except ImportError:
 
 def __main__(args):
     mapstruct = custom_maps.create_banana_map()
-    network = Model12()
+    network = Model15()
 
     if (args.model_path is None):
         network = None

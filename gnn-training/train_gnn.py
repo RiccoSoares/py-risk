@@ -4,16 +4,26 @@ import random
 import argparse
 import torch
 from torch.optim import Adam
+from torch_geometric.data import Batch
 from risk.replay_buffer import ReplayBuffer
-from risk.nn import Model12
+from risk.nn import Model15
 
 def create_batches(replay_buffer, batch_size):
     random.shuffle(replay_buffer.buffer)
     for i in range(0, len(replay_buffer.buffer), batch_size):
         yield replay_buffer.buffer[i:i + batch_size]
 
+def collate_batch(batch):
+    state_data, move_probs, win_values = zip(*batch)
+    state_batch = Batch.from_data_list(state_data)
+    
+    target_policy = torch.tensor(move_probs, dtype=torch.float32)
+    target_value = torch.tensor(win_values, dtype=torch.float32).view(-1, 1)
+    
+    return state_batch, target_policy, target_value
+
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=3, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
     criterion_value = torch.nn.MSELoss()
@@ -23,40 +33,27 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, 
         total_value_loss = 0.0
 
         for batch in create_batches(replay_buffer, batch_size):
-            batch_policy_loss = 0.0
-            batch_value_loss = 0.0
+            state_batch, target_policy, target_value = collate_batch(batch)
+            
+            # Forward pass with batched data
+            predicted_value, predicted_policy = network(state_batch)
 
-            for exp in batch:
-                state, target_policy, target_value = exp
-                graph_features, global_features, edges, moves = state
-
-                # Forward pass
-                predicted_value, predicted_policy = network(graph_features, global_features, edges, moves)
-
-                # Convert target policy and target value to tensors
-                target_policy_tensor = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
-                target_value_tensor = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
-
-                # Calculate losses
-                policy_loss = criterion_policy(predicted_policy, target_policy_tensor)
-                value_loss = criterion_value(predicted_value.squeeze(), target_value_tensor)
-
-                # Accumulate losses
-                batch_policy_loss += policy_loss
-                batch_value_loss += value_loss
+            # Calculate losses
+            policy_loss = criterion_policy(predicted_policy, target_policy)
+            value_loss = criterion_value(predicted_value.squeeze(), target_value)
 
             # Zero the gradients
             optimizer.zero_grad()
 
             # Perform a backward pass on the accumulated loss
-            total_loss = batch_policy_loss + batch_value_loss
+            total_loss = policy_loss + value_loss
             total_loss.backward()
 
             # Update the parameters once per batch
             optimizer.step()
 
-            total_policy_loss += batch_policy_loss.item()
-            total_value_loss += batch_value_loss.item()
+            total_policy_loss += policy_loss.item()
+            total_value_loss += value_loss.item()
         
         avg_policy_loss = total_policy_loss / len(replay_buffer.buffer)
         avg_value_loss = total_value_loss / len(replay_buffer.buffer)
@@ -66,6 +63,7 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, 
     print("Training complete.")
     return network
 
+
 def main(args):
     # Load the replay buffer
     replay_buffer = ReplayBuffer()
@@ -73,7 +71,7 @@ def main(args):
     print('Starting training with replay buffer of size:', len(replay_buffer.buffer))
 
     # Initialize and load the model
-    network = Model12()
+    network = Model15()
     with open(args.model_path, 'rb') as f:
         network.load_state_dict(pickle.load(f))
 

@@ -30,12 +30,14 @@ Map played is currently Italy.
 
 To load the ReplayBuffer data and train the GNN:
 ```sh
-PYTHONPATH=$(pwd) python gnn-training/train_gnn.py \
-    --replay_buffer_path results/replay_buffer_model12.pkl \
-    --model_path model-weights/model12_initial_weights.pkl \
-    --trained_model_path model-weights/model12_trained_weights.pkl \
-    --epochs 50 \
-    --learning_rate 0.001
+PYTHONPATH=$(pwd) python gnn-training/self-play.py \
+    --iter 50 \
+    --model-type MCTS \
+    --output-dir results \
+    --buffer-capacity 10000 \
+    --num-games 100 \
+    --model-path model-weights/model15/initial_weights.pkl \
+    --replay-buffer-path replay-buffer/model15-0/banana.pkl
 ```
 
 ## Evaluation
