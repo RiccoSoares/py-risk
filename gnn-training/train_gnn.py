@@ -2,11 +2,10 @@ import pickle
 import torch
 import random
 import argparse
-import torch
 from torch.optim import Adam
-from torch_geometric.data import Batch
 from risk.replay_buffer import ReplayBuffer
-from risk.nn import Model15
+from risk.nn import Model15, Model12  # Include both models for comparison
+from torch_geometric.data import Batch
 
 def create_batches(replay_buffer, batch_size):
     random.shuffle(replay_buffer.buffer)
@@ -15,15 +14,17 @@ def create_batches(replay_buffer, batch_size):
 
 def collate_batch(batch):
     state_data, move_probs, win_values = zip(*batch)
+    
+    # Using `Batch` from torch_geometric to batch data objects
     state_batch = Batch.from_data_list(state_data)
     
     target_policy = torch.tensor(move_probs, dtype=torch.float32)
-    target_value = torch.tensor(win_values, dtype=torch.float32).view(-1, 1)
+    target_value = torch.tensor(win_values, dtype=torch.float32).view(-1)
     
     return state_batch, target_policy, target_value
 
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=3, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
     criterion_value = torch.nn.MSELoss()
@@ -38,9 +39,12 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=3, 
             # Forward pass with batched data
             predicted_value, predicted_policy = network(state_batch)
 
+            # Flatten the predicted value to match the target value shape
+            predicted_value = predicted_value.view(-1)
+
             # Calculate losses
             policy_loss = criterion_policy(predicted_policy, target_policy)
-            value_loss = criterion_value(predicted_value.squeeze(), target_value)
+            value_loss = criterion_value(predicted_value, target_value)
 
             # Zero the gradients
             optimizer.zero_grad()
@@ -63,7 +67,6 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=3, 
     print("Training complete.")
     return network
 
-
 def main(args):
     # Load the replay buffer
     replay_buffer = ReplayBuffer()
@@ -71,7 +74,7 @@ def main(args):
     print('Starting training with replay buffer of size:', len(replay_buffer.buffer))
 
     # Initialize and load the model
-    network = Model15()
+    network = Model15()  # Using the batched model
     with open(args.model_path, 'rb') as f:
         network.load_state_dict(pickle.load(f))
 
