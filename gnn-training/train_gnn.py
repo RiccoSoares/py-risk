@@ -36,6 +36,7 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, 
                 # Convert target policy and target value to tensors
                 target_policy_tensor = torch.tensor(target_policy, dtype=torch.float32, device=predicted_policy.device)
                 target_value_tensor = torch.tensor(target_value, dtype=torch.float32, device=predicted_value.device)
+                target_value_tensor = torch.nn.functional.normalize(target_value_tensor, dim=0)
 
                 # Calculate losses
                 policy_loss = criterion_policy(predicted_policy, target_policy_tensor)
