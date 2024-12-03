@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_banana_map()
+    mapstruct = custom_maps.create_italy_map()
     if args.model_1 is not None:
         model1 = pickle.load(open(args.model_1, "rb"))
     else:
@@ -24,8 +24,8 @@ def __main__(args):
     else:
         model2 = None
 
-    model1 = LinearModel()
-    model2 = LinearModel()
+    model1 = Model12()
+    model2 = Model15()
     print(f"Starting game on {args.map}")
 
     data = {

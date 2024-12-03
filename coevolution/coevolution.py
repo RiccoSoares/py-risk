@@ -5,21 +5,6 @@ import numpy as np
 from risk.game_types import MapState
 from time import time
 
-class Individual:
-    def __init__(self, genes, index):
-        self.genes = genes
-        self.fitness = None
-        self.index = index
-
-    def __lt__(self, other):
-        return self.fitness < other.fitness
-    
-    def __gt__(self, other):
-        return self.fitness > other.fitness
-    
-    def __eq__(self, other):
-        return self.fitness == other.fitness
-
 class Coevolution:
     def __init__(self,
      mapstate: MapState,
@@ -30,7 +15,7 @@ class Coevolution:
      generations= 10,  
      crossover_rate= 0.2, 
      tournament_size= 3, 
-     elitism= 1,
+     elitism= 4,
      mutation_rate= 0.05,
      mutation_percent_genes = 0.05,
      initialize_pops_with_gnn= False,
@@ -109,9 +94,11 @@ class Coevolution:
     def evaluate_board_position(self, mapstate):
         if mapstate.winner() is not None:
             return 1 if mapstate.winner() == self.player1 else -1
+
+        graph_features, global_features, edges = mapstate.to_tensor(self.player1, self.player2)
+        v, _ = self.gnn_model(graph_features, global_features, edges, [])
             
-        prep = self.gnn_model.prep(mapstate, p1=self.player1, p2=self.player2)
-        return self.gnn_model(prep) * 0.5
+        return v * 0.5
 
     def mutate_populations(self):
         for i in range(self.populations_size):
@@ -185,3 +172,17 @@ class Coevolution:
             j = np.random.choice(np.where(self.mapstate.owner == player)[0])
             offset_genes[j] += 1
             
+class Individual:
+    def __init__(self, genes, index):
+        self.genes = genes
+        self.fitness = None
+        self.index = index
+
+    def __lt__(self, other):
+        return self.fitness < other.fitness   
+
+    def __gt__(self, other):
+        return self.fitness > other.fitness
+
+    def __eq__(self, other):
+        return self.fitness == other.fitness
