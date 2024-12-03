@@ -16,7 +16,7 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_banana_map()
+    mapstruct = custom_maps.create_italy_map()
     network = Model12()
 
     if (args.model_path is None):
@@ -35,7 +35,7 @@ def __main__(args):
 
     for i in range(args.num_games):
 
-        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on Italy")
 
         data = {
             "self-play": True,
