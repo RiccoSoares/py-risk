@@ -8,7 +8,6 @@ from distutils.util import strtobool
 import risk
 import risk.custom_maps as custom_maps
 from risk.replay_buffer import ReplayBuffer
-from risk.nn import Model5
 
 try:
     from risk.nn import *
@@ -17,10 +16,9 @@ except ImportError:
 
 def __main__(args):
     mapstruct = custom_maps.create_banana_map()
-    network = Model15()
 
     if (args.model_path is None):
-        network = None
+        network = Model15()
     else:
         with open(args.model_path, 'rb') as f:
             network.load_state_dict(pickle.load(f))

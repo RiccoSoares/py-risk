@@ -89,8 +89,8 @@ class ReplayBuffer:
                 moves = self.convert_moves(raw_moves)
                 data = self.convert_to_data(state, mapstruct, moves, player, opponent)
 
-                move_probs = turn['move_probs'][idx]
-                win_values = turn['win_value'][idx]
+                move_probs = torch.tensor(turn['move_probs'][idx], dtype=torch.float32)
+                win_values = torch.tensor(turn['win_value'][idx] / turn['visits'][idx], dtype=torch.float32)
 
                 experience = (data, move_probs, win_values)
                 self.add(experience)
