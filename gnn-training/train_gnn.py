@@ -18,13 +18,13 @@ def collate_batch(batch):
     # Using `Batch` from torch_geometric to batch data objects
     state_batch = Batch.from_data_list(state_data)
     
-    target_policy = torch.tensor(move_probs, dtype=torch.float32)
-    target_value = torch.tensor(win_values, dtype=torch.float32).view(-1)
+    target_policy = torch.stack(move_probs)
+    target_value = torch.stack(win_values)
     
     return state_batch, target_policy, target_value
 
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=5, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=20, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
     criterion_value = torch.nn.MSELoss()
