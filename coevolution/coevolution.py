@@ -4,6 +4,9 @@ from risk.rand import rand_move
 import numpy as np
 from risk.game_types import MapState
 from time import time
+from risk.data_loader import *
+from torch_geometric.data import Batch
+from torch_geometric.loader import DataLoader
 
 class Individual:
     def __init__(self, genes, index):
@@ -89,29 +92,55 @@ class Coevolution:
 
     def evaluate_populations(self):
         self.relational_fitness_table[:] = 0
+        boards_to_evaluate = []
+        boards_indices = []
+        winners = []
+
         for i in range(self.populations_size):
             for j in range(self.populations_size):
-                self.relational_fitness_table[i, j] = self.relational_fitness(
-                    self.population1[i], self.population2[j]
-                )
+                pop1_order = OrderList.from_gene(self.population1[i].genes, self.mapstruct, self.player1)
+                pop2_order = OrderList.from_gene(self.population2[j].genes, self.mapstruct, self.player2)
+                resulting_board = (pop1_order | pop2_order)(self.mapstate)
+                
+                w = resulting_board.winner()
+                if w is not None:
+                    winners.append(True)
+                    fit = 1 if w == self.player1 else -1
+                    self.relational_fitness_table[i, j] = fit
+
+                else:
+                    winners.append(False)
+                    boards_to_evaluate.append(resulting_board)
+                    boards_indices.append((i, j))
+
+        boards_data = []
+        for board, won in zip(boards_to_evaluate, winners):
+            if not won:
+                rand_moves = [rand_move(board, self.player1) for i in range(5)]
+                prep = self.prep_policy_value_data(board, self.mapstruct, rand_moves, self.player1, self.player2)
+                boards_data.append(prep)
+        
+        if len(boards_data) > 0:
+            data_loader = DataLoader(boards_data, batch_size=200, shuffle=False)
+            values = []
+            for batch in data_loader:
+                v, _ = self.gnn_model(batch)
+                values.append(v)
+            values = torch.cat(values, dim=0)
+
+        else:
+            values = torch.tensor([])
+
+        eval_index = 0
+        for idx, (i, j) in enumerate(boards_indices):
+            if not winners[idx]:
+                fit = values[eval_index].item() * 0.5
+                self.relational_fitness_table[i, j] = fit
+                eval_index += 1
 
         for i in range(self.populations_size):
             self.population1[i].fitness = np.mean(self.relational_fitness_table[i,:])
             self.population2[i].fitness = - np.mean(self.relational_fitness_table[:,i])
-
-    def relational_fitness(self, pop1_individual, pop2_individual):
-        pop1_order = OrderList.from_gene(pop1_individual.genes, self.mapstruct, self.player1)
-        pop2_order = OrderList.from_gene(pop2_individual.genes, self.mapstruct, self.player2)
-
-        resulting_board = (pop1_order | pop2_order)(self.mapstate)
-        return self.evaluate_board_position(resulting_board)
-
-    def evaluate_board_position(self, mapstate):
-        if mapstate.winner() is not None:
-            return 1 if mapstate.winner() == self.player1 else -1
-            
-        prep = self.gnn_model.prep(mapstate, p1=self.player1, p2=self.player2)
-        return self.gnn_model(prep) * 0.5
 
     def mutate_populations(self):
         for i in range(self.populations_size):
@@ -184,4 +213,38 @@ class Coevolution:
         while offset_genes[:len(self.mapstate)].sum() < self.mapstate.income(player):
             j = np.random.choice(np.where(self.mapstate.owner == player)[0])
             offset_genes[j] += 1
+
+    def prep_policy_value_data(self, state, mapstruct, moves, player, opponent):
+        x1, x2, edges = state.to_tensor(player, opponent)
+        graph_features, _, _ = state.to_tensor(player, opponent, full=False)
+        i1, i2 = state.income(player), state.income(opponent)
+        assert torch_geometric.utils.is_undirected(edges)
+
+        mask, nodes, values, b_edges, b_mapping = mapstruct.bonusTensorAlt()
+
+        z = torch.zeros(values.size(), dtype=torch.long)
+        z.index_add_(0, mask, torch.ones(mask.size(), dtype=torch.long))
+
+        orders = moves
+        order_data = build_order_data(orders, state, x1)
+        return StateData(
+            map=mapstruct.id,
+            num_nodes=len(mapstruct),
+            num_bonuses=len(values),
+            num_moves=len(orders),
+            graph_data=x1,
+            global_data=x2,
+            graph_features=graph_features,
+            graph_edges=edges,
+            bonus_edges=b_edges,
+            bonus_batch=mask,
+            bonus_nodes=nodes,
+            bonus_values=values,
+            bonus_values_normed=values / z,
+            bonus_mapping=b_mapping,
+            income=torch.tensor([i1, i2]).view(1, -1),
+            total_armies=graph_features[:,2:].sum(dim=0).view(1,-1),
+            edge_index=edges,
+            **order_data,
+        )
             
