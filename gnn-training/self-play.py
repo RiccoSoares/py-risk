@@ -15,10 +15,10 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_banana_map()
+    mapstruct = custom_maps.create_simple_map()
 
     if (args.model_path is None):
-        network = Model15()
+        network = None
     else:
         with open(args.model_path, 'rb') as f:
             network.load_state_dict(pickle.load(f))
@@ -33,7 +33,7 @@ def __main__(args):
 
     for i in range(args.num_games):
 
-        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana Map")
 
         data = {
             "self-play": True,

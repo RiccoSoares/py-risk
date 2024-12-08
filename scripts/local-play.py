@@ -24,7 +24,7 @@ def __main__(args):
     else:
         model2 = None
 
-    model1 = LinearModel()
+    model1 = Model15()
     model2 = LinearModel()
     print(f"Starting game on {args.map}")
 
