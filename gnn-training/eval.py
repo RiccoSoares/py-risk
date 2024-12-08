@@ -15,9 +15,9 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_italy_map()
-    network1 = Model12()
-    network2 = Model12()
+    mapstruct = custom_maps.create_banana_map()
+    network1 = Model15()
+    network2 = Model15()
 
     with open(args.model_1_path, 'rb') as f:
         network1.load_state_dict(pickle.load(f))

@@ -908,6 +908,15 @@ class Model15(torch.nn.Module):
         self.final2 = Linear(60, 1)
         self.drop = Dropout(0.50)
 
+        ORDER_UNITS = 20
+        FINAL_ORDER_UNITS = 20
+        self.attack_transform = Linear(2 * 60 + 1, ORDER_UNITS)
+        self.transfer_transform = Linear(2 * 60 + 1, ORDER_UNITS)
+        self.deploy_transform = Linear(60 + 1, ORDER_UNITS)
+
+        self.order_accumulate = Linear(ORDER_UNITS, FINAL_ORDER_UNITS)
+        self.final_order_layer = Linear(FINAL_ORDER_UNITS, 1)
+
     def forward(self, data):
       x = data.graph_features
 
@@ -945,6 +954,40 @@ class Model15(torch.nn.Module):
       x = torch.cat([x, b], dim=1)
       x7 = x = F.relu(self.g3(x, data.graph_edges))
 
+      x_node_embeddings = x7
+
+      # Prepare move-specific features
+      attack_features = torch.cat([
+          data.aarmies.view(-1, 1),
+          x_node_embeddings[data.asrcs],
+          x_node_embeddings[data.adsts]
+      ], dim=1)
+      transfer_features = torch.cat([
+          data.tarmies.view(-1, 1),
+          x_node_embeddings[data.tsrcs],
+          x_node_embeddings[data.tdsts]
+      ], dim=1)
+      deploy_features = torch.cat([
+          data.darmies.view(-1, 1),
+          x_node_embeddings[data.dtgts]
+      ], dim=1)
+
+      # Pass through policy head layers
+      attack_logits = F.relu(self.attack_transform(attack_features))
+      transfer_logits = F.relu(self.transfer_transform(transfer_features))
+      deploy_logits = F.relu(self.deploy_transform(deploy_features))
+
+      # Combine order tensors
+      order_tensors = torch.cat([attack_logits, transfer_logits, deploy_logits], dim=0)
+      order_tensors = F.relu(self.order_accumulate(order_tensors))
+
+      # Pool order tensors to get per-move logits
+      batch_indices = torch.cat([data.abtch, data.tbtch, data.dbtch], dim=0)
+      tmp = global_add_pool(order_tensors, batch=batch_indices)
+      tmp = self.final_order_layer(F.relu(tmp))
+      tmp = tmp.reshape((-1, data.num_moves[0]))
+      pi = F.log_softmax(tmp, dim=-1)
+
       x = global_mean_pool(x, data.batch)
 
       # assert x.size(0) == data.income.size(0) == data.total_armies.size(0)
@@ -955,7 +998,6 @@ class Model15(torch.nn.Module):
       x = self.final2(x)
 
       x = torch.tanh(x).view(-1)
-      pi = torch.log_softmax(torch.zeros((len(data.num_moves), data.num_moves[0])), dim=1)
 
       return x, pi
 

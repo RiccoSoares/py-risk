@@ -8,7 +8,6 @@ from distutils.util import strtobool
 import risk
 import risk.custom_maps as custom_maps
 from risk.replay_buffer import ReplayBuffer
-from risk.nn import Model5
 
 try:
     from risk.nn import *
@@ -16,8 +15,7 @@ except ImportError:
     pass
 
 def __main__(args):
-    mapstruct = custom_maps.create_italy_map()
-    network = Model12()
+    mapstruct = custom_maps.create_simple_map()
 
     if (args.model_path is None):
         network = None
@@ -35,7 +33,7 @@ def __main__(args):
 
     for i in range(args.num_games):
 
-        print(f"\n\nStarting game {i+1} out of {args.num_games} on Italy")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana Map")
 
         data = {
             "self-play": True,
