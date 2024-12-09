@@ -113,7 +113,7 @@ def __main__(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Play game")
-    parser.add_argument("--surrender-thresh", type=float, default=0.005, help="Terminate early if a player has this probability of winning")
+    parser.add_argument("--surrender-thresh", type=float, default=0.0, help="Terminate early if a player has this probability of winning")
     parser.add_argument("--iter", type=int, default=100, help="Number of iterations to run per turn for player")
     parser.add_argument("--output-dir", type=str, default=None, help="Directory to store run data in")
     parser.add_argument("--buffer-capacity", type=int, default=10000, help="Capacity of the replay buffer")
