@@ -33,11 +33,11 @@ def __main__(args):
 
     for i in range(args.num_games):
 
-        print(f"\n\nStarting game {i+1} out of {args.num_games} on Banana Map")
+        print(f"\n\nStarting game {i+1} out of {args.num_games} on {mapstruct.name}")
 
         data = {
             "self-play": True,
-            "map": 1,
+            "map": mapstruct.id,
             "turns": [],
             "winner": None
         }

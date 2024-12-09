@@ -76,14 +76,7 @@ def extract_from_orders(moves, state):
 
 def build_order_data(moves, state, x1):
   data = extract_from_orders(moves, state)
-  if state.mapstruct.id == int(MapID.ITALY):
-      # These features are map specific!
-      bonus_features = torch.tensor([[
-        x1[(x1[:,5+j] == 1) & (torch.arange(20) != i), 0].mean() if x1[i,5+j] == 1 else 0
-        for j in range(10)] for i in range(20)
-      ])
-  else:
-      bonus_features = torch.tensor([]).view(len(state), 0)
+  bonus_features = torch.tensor([]).view(len(state), 0)
   
   data["attack_data"] = torch.cat([
     x1[data["asrcs"], :],
