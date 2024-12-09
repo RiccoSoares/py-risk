@@ -22,7 +22,7 @@ def create_simple_map():
         Bonus("Region 3", {6, 7, 8}, 2)
     ]
     
-    return MapStructure(mapid=1, name="Simple Map", graph=g, bonuses=bonuses, ids=ids)
+    return MapStructure(mapid=4, name="Simple Map", graph=g, bonuses=bonuses, ids=ids)
 
 def create_banana_map():
     """
@@ -68,7 +68,53 @@ def create_banana_map():
                 Bonus("Bottom Scale", {9, 10, 11}, 2),
                 Bonus("Left Scale", {5, 6, 7}, 2),
                 Bonus("Right Scale", {2, 3, 4}, 2)]
-    return MapStructure(mapid=1, name="Italy", graph=g, bonuses=bonuses, ids=ids)
+    return MapStructure(mapid=3, name="Banana", graph=g, bonuses=bonuses, ids=ids)
+
+def create_owl_island_map():
+    """
+        Owl Map with 12 territories and 4 bonuses. Link to the map: https://www.warzone.com/SinglePlayer?PreviewMap=56763
+        Regions are:
+            0 - Eastpoint
+            1 - Blue River
+            2 - Eastern Jungle
+            3 - Owl Mountain
+            4 - Saltwater Falls
+            5 - Eastpath
+            6 - Westpath
+            7 - Brine Cliffs
+            8 - Forgotten Path
+            9 - Northern Dunes
+            10- Western Jungle
+            11- Westpoint
+    """
+
+    num_vertices = 12
+    g = Graph()
+    g.add_vertices(num_vertices)
+
+    connections = [
+        (0,1), (0,2), # Eastpoint connections
+        (1,2), (1,5), # Blue River connections
+        (2,4), (2,5), # Eastern Jungle connections
+        (3,5), (3,6), # Owl Mountain connections
+        (4,5), # Saltwater Falls connections
+        (5,6),(5,7), # Eastpath connections
+        (6,7),(6,8),(6,10), # Westpath connections
+        (7,10), # Brine Cliffs connections
+        (8,9),(8,10), # Forgotten Path connections
+        (9,10),(9,11), # Northern Dunes part connections
+        (10,11) # Western Jungle connections
+                # Westpoint connections
+    ]
+
+    g.add_edges(connections)
+    ids = {i: i for i in range(num_vertices)}
+
+    bonuses = [ Bonus("East", {0, 1, 2}, 2),
+                Bonus("North", {3}, 1),
+                Bonus("South", {4, 5, 6, 7}, 3),
+                Bonus("West", {8, 9, 10, 11}, 3)]
+    return MapStructure(mapid=2, name="Owl Island", graph=g, bonuses=bonuses, ids=ids)
 
 def create_italy_map():
     """
