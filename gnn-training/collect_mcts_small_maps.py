@@ -12,7 +12,7 @@ from risk.replay_buffer import ReplayBuffer
 
 def __main__(args):
     network = None
-    target_experiences = 20000
+    target_experiences = 10000
 
     simple_map = custom_maps.create_simple_map()
     banana_map = custom_maps.create_banana_map()
@@ -25,6 +25,15 @@ def __main__(args):
     owl_island_buffer_path = "replay-buffer/mcts300/owl_island.pkl"
     banana_buffer_path = "replay-buffer/mcts300/banana.pkl"
     simple_buffer_path = "replay-buffer/mcts300/simple.pkl"
+
+    if os.path.exists(owl_island_buffer_path):
+        owl_island_replay_buffer.load(owl_island_buffer_path)
+
+    if os.path.exists(banana_buffer_path):
+        banana_replay_buffer.load(banana_buffer_path)
+
+    if os.path.exists(simple_buffer_path):
+        simple_replay_buffer.load(simple_buffer_path)
 
     training_setups = [
         (simple_map, simple_replay_buffer, simple_buffer_path),
@@ -91,6 +100,9 @@ def __main__(args):
             replay_buffer.collect_training_data(data["turns"], mapstruct, 1, 2)
             print(f"Game complete: Player {result} Won")
             print("\n")
+
+            os.makedirs('results', exist_ok=True)
+            json.dump(data, open(f"results/{dt.datetime.now()}.json", "w"))
             
             replay_buffer.save(buffer_path)
             print(f'Replay buffer saved and contains {len(replay_buffer)} experiences.')
@@ -101,7 +113,7 @@ def __main__(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Play game")
-    parser.add_argument("--surrender-thresh", type=float, default=0.01, help="Terminate early if a player has this probability of winning")
+    parser.add_argument("--surrender-thresh", type=float, default=0.005, help="Terminate early if a player has this probability of winning")
     parser.add_argument("--iter", type=int, default=100, help="Number of iterations to run per turn for player")
     parser.add_argument("--output-dir", type=str, default=None, help="Directory to store run data in")
     parser.add_argument("--buffer-capacity", type=int, default=10000, help="Capacity of the replay buffer")
