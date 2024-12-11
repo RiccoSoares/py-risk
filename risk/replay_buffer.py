@@ -95,7 +95,7 @@ class ReplayBuffer:
                 experience = (data, move_probs, win_values)
                 self.add(experience)
 
-    def collect_player_data(self, turns_data, mapstract, player, opponent):
+    def collect_player_data(self, turns_data, mapstruct, player, opponent):
         for turn in turns_data:
             state = MapState(turn['armies'], turn['owner'], mapstruct)
             raw_moves = turn['moves'][0]
