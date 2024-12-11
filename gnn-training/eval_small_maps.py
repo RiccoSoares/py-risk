@@ -18,8 +18,14 @@ def __main__(args):
     latest_gnn = Model15()
     previous_gnn = Model15()
 
-    latest_gnn.load_state_dict(pickle.load('model-weights/it1.pkl'))
-    previous_gnn.load_state_dict(pickle.load('model-weights/it0.pkl'))
+    latest_pth = 'model-weights/it1.pkl'
+    previous_pth = 'model-weights/it0.pkl'
+
+    with open(latest_pth, 'rb') as f:
+        latest_gnn.load_state_dict(pickle.load(f))
+    
+    with open(previous_pth, 'rb') as f:
+        previous_gnn.load_state_dict(pickle.load(f))
 
     # Set to evaluation mode
     latest_gnn.eval()
