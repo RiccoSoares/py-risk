@@ -26,7 +26,7 @@ def collate_batch(batch):
 # Function to train the policy and value network
 def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=20, learning_rate=0.001):
     optimizer = Adam(network.parameters(), lr=learning_rate)
-    criterion_policy = torch.nn.KLDivLoss(reduction='batchmean')
+    criterion_policy = torch.nn.CrossEntropyLoss()
     criterion_value = torch.nn.MSELoss()
 
     for epoch in range(epochs):
@@ -41,6 +41,8 @@ def train_policy_value_network(network, replay_buffer, epochs=30, batch_size=20,
 
             # Flatten the predicted value to match the target value shape
             predicted_value = predicted_value.view(-1)
+            # Convert target_policy to appropriate form (index of target class)
+            target_policy = target_policy.argmax(dim=1)
 
             # Calculate losses
             policy_loss = criterion_policy(predicted_policy, target_policy)

@@ -986,7 +986,7 @@ class Model15(torch.nn.Module):
       tmp = global_add_pool(order_tensors, batch=batch_indices)
       tmp = self.final_order_layer(F.relu(tmp))
       tmp = tmp.reshape((-1, data.num_moves[0]))
-      pi = F.log_softmax(tmp, dim=-1)
+      pi = tmp
 
       x = global_mean_pool(x, data.batch)
 
