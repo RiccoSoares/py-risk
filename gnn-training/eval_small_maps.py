@@ -89,7 +89,7 @@ def __main__(args):
         for mapstruct, buffer_path in zip(maps, buffer_paths):
             latest_agent_map_wins = 0
             opp_map_wins = 0
-            replay_buffer = risk.ReplayBuffer()
+            replay_buffer = replay_buffer.ReplayBuffer()
             for i in range(args.num_games):
 
                 print(f"\n\nStarting game {i+1} out of {args.num_games} on {mapstruct.name}")
@@ -136,7 +136,7 @@ def __main__(args):
                     json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
                 
                 print("\n\n")
-                
+
             replay_buffer.save(buffer_path)
 
             print("\n\n")
