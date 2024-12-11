@@ -136,7 +136,9 @@ def __main__(args):
                     json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
                 
                 print("\n\n")
-        
+                
+            replay_buffer.save(buffer_path)
+
             print("\n\n")
             print(f"Map {mapstruct.name} Results")
             print(f"Latest Bot wins: {latest_agent_map_wins} ({latest_agent_map_wins/args.num_games*100})%")
