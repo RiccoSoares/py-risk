@@ -8,6 +8,7 @@ from distutils.util import strtobool
 import risk
 import risk.custom_maps as custom_maps
 from risk.nn import Model5
+from risk.replay_buffer import ReplayBuffer
 
 try:
     from risk.nn import *
@@ -76,14 +77,19 @@ def __main__(args):
                 mirror_model=args.mirror_model_2,
         )
 
-    matchups = [(latest_agent, previous_agent, 'Previous Iteration'), (latest_agent, baseline, 'Baseline')]
-    maps = [custom_maps.create_simple_map(), custom_maps.create_banana_map(), custom_maps.create_owl_island_map()]
+    matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
+    maps = [custom_maps.create_banana_map(), custom_maps.create_owl_island_map(), custom_maps.create_simple_map()]
+    buffer_paths = ['replay-buffer/it1/banana.pkl', 'replay-buffer/it1/owl_island.pkl', 'replay-buffer/it1/simple.pkl']
 
     for matchup in matchups:
+        print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")
         latest_agent_wins = 0
         opp_wins = 0
 
-        for mapstruct in maps:
+        for mapstruct, buffer_path in zip(maps, buffer_paths):
+            latest_agent_map_wins = 0
+            opp_map_wins = 0
+            replay_buffer = risk.ReplayBuffer()
             for i in range(args.num_games):
 
                 print(f"\n\nStarting game {i+1} out of {args.num_games} on {mapstruct.name}")
@@ -94,7 +100,6 @@ def __main__(args):
                     "turns": [],
                     "winner": None
                 }
-
 
                 bot1 = matchup[0]
                 bot2 = matchup[1]
@@ -113,10 +118,14 @@ def __main__(args):
                 )
 
                 data["winner"] = result
+                replay_buffer.collect_player_data(data["turns"], mapstruct, 1, 2)
+
                 if result == 1:
                     latest_agent_wins += 1
                 else:
                     opp_wins += 1
+
+                print("\n")
                 print(f"Game {i} complete: Player {result} Won")
                 print(f"Latest Bot wins: {latest_agent_wins} ({latest_agent_wins/(i+1)*100})%")
                 print(f"{matchup[2]} Bot wins: {opp_wins} ({opp_wins/(i+1)*100}%)")
@@ -127,8 +136,16 @@ def __main__(args):
                     json.dump(data, open(f"{args.output_dir}/{dt.datetime.now()}.json", "w"))
                 
                 print("\n\n")
-            print(f"Latest Bot wins: {latest_agent_wins} ({latest_agent_wins/args.num_games*100})%")
-            print(f"{matchup[2]} wins: {opp_wins} ({opp_wins/args.num_games*100}%)")
+        
+            print("\n\n")
+            print(f"Map {mapstruct.name} Results")
+            print(f"Latest Bot wins: {latest_agent_map_wins} ({latest_agent_map_wins/args.num_games*100})%")
+            print(f"{matchup[2]} wins: {opp_map_wins} ({opp_map_wins/args.num_games*len(maps)*100}%)")
+    
+        print("\n\n")
+        print(f"Overall Results for matchup between {matchup[2]} and Latest Bot")
+        print(f"Latest Bot wins: {latest_agent_wins} ({latest_agent_wins/args.num_games*len(maps)*100})%")
+        print(f"{matchup[2]} wins: {opp_wins} ({opp_wins/args.num_games*len(maps)*100}%)")
 
 
 

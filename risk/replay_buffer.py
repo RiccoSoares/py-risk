@@ -94,3 +94,16 @@ class ReplayBuffer:
 
                 experience = (data, move_probs, win_values)
                 self.add(experience)
+
+    def collect_player_data(self, turns_data, mapstract, player, opponent):
+        for turn in turns_data:
+            state = MapState(turn['armies'], turn['owner'], mapstruct)
+            raw_moves = turn['moves'][0]
+            moves = self.convert_moves(raw_moves)
+            data = self.convert_to_data(state, mapstruct, moves, player, opponent)
+
+            move_probs = torch.tensor(turn['move_probs'][0], dtype=torch.float32)
+            win_values = torch.tensor(turn['win_value'][0] / turn['visits'][0], dtype=torch.float32)
+
+            experience = (data, move_probs, win_values)
+            self.add(experience)
