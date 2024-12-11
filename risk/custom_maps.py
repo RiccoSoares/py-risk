@@ -185,3 +185,85 @@ def create_italy_map():
     ]
 
     return MapStructure(mapid=1, name="Italy", graph=g, bonuses=bonuses, ids=ids)
+
+def create_small_earth_map():
+    """
+        Small Earth Map with 42 territories and 6 bonuses. Link to the map: https://www.warzone.com/SinglePlayer?PreviewMap=70306
+        Regions are:
+            0 - Kamchatka
+            1 - Yakutsk
+            2 - Siberia
+            3 - Ural
+            4 - Irkutsk
+            5 - Japan
+            6 - Mongolia
+            7 - China
+            8 - Kazakhstan
+            9 - Siam
+            10 - India
+            11 - Middle East
+
+            12 - New Guinea
+            13 - Indonesia
+            14 - Eastern Australia
+            15 - Western Australia
+
+            16 - Ukraine
+            17 - Scandinavia
+            18 - Iceland
+            19 - N. Europe
+            20 - Great Britain
+            21 - S. Europe
+            22 - W. Europe
+
+            23 - East Africa
+            24 - Egypt
+            25 - North Africa
+            26 - Congo
+            27 - Madagascar
+            28 - South Africa
+
+            29 - Greenland
+            30 - Northwest Territory
+            31 - Alaska
+            32 - Quebec
+            33 - Ontario
+            34 - Alberta
+            35 - Eastern United States
+            36 - Western United States
+            37 - Mexico
+
+            38 - Venezuela
+            39 - Brazil
+            40 - Peru
+            41 - Argentina
+    """
+    num_vertices = 42
+    g = Graph()
+    g.add_vertices(num_vertices)
+    
+    connections = [
+        (0,4),(0,6),(0,5),(0,31),(0,1),(1,4),(1,2),(2,4),(2,6),(2,3),(2,7),
+        (3,16),(3,7),(3,8),(4,6),(5,6),(6,7),(7,10),(7,9),(7,8),(8,11),(8,16),(8,10),
+        (9,10),(9,13),(10,11),(11,21),(11,16),(11,24),(11,23),(12,15),(12,14),(12,13),
+        (13,15),(14,15),(16,19),(16,21),(16,17),(17,20),(17,18),(18,20),(18,29),
+        (19,20),(19,21),(19,22),(20,22),(21,22),(21,25),(21,24),(22,25),
+        (23,26),(23,28),(23,27),(23,24),(23,25),(24,25),(25,26),(25,39),
+        (26,28),(27,28),(29,30),(29,33),(29,32),(30,31),(30,34),(30,33),
+        (31,34),(32,35),(32,33),(33,35),(33,34),(33,36),(34,36),(35,37),
+        (35,36),(36,37),(35,38),(37,38),(38,40),(38,39),(39,40),(39,41),(40,41)
+    ]
+
+    g.add_edges(connections)
+    ids = {i: i for i in range(num_vertices)}
+
+    bonuses = [
+        Bonus("Asia", {0,1,2,3,4,5,6,7,8,9,10,11}, 3),
+        Bonus("Oceania", {12,13,14,15}, 2),
+        Bonus("Europe", {16,17,18,19,20,21,22}, 5),
+        Bonus("Africa", {23,24,25,26,27,28}, 3),
+        Bonus("North America", {29,30,31,32,33,34,35,36,37}, 5),
+        Bonus("South America", {38,39,40,41}, 2),
+    ]
+
+    return MapStructure(mapid=5, name="Small Earth", graph=g, bonuses=bonuses, ids=ids)
