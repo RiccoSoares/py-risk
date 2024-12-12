@@ -9,9 +9,13 @@ from distutils.util import strtobool
 import risk
 import risk.custom_maps as custom_maps
 from risk.replay_buffer import ReplayBuffer
+from risk.nn import Model15
 
 def __main__(args):
-    network = None
+    network = Model15()
+    with open('model-weights/it1.pkl', 'rb') as f:
+        network.load_state_dict(pickle.load(f))
+
     target_experiences = 10000
 
     simple_map = custom_maps.create_simple_map()
@@ -22,9 +26,9 @@ def __main__(args):
     banana_replay_buffer = ReplayBuffer(target_experiences + 200)
     simple_replay_buffer = ReplayBuffer(target_experiences + 200)
 
-    owl_island_buffer_path = "replay-buffer/mcts300/owl_island.pkl"
-    banana_buffer_path = "replay-buffer/mcts300/banana.pkl"
-    simple_buffer_path = "replay-buffer/mcts300/simple.pkl"
+    owl_island_buffer_path = "replay-buffer/it1/owl_island.pkl"
+    banana_buffer_path = "replay-buffer/it1/banana.pkl"
+    simple_buffer_path = "replay-buffer/it1/simple.pkl"
 
     if os.path.exists(owl_island_buffer_path):
         owl_island_replay_buffer.load(owl_island_buffer_path)
@@ -36,9 +40,9 @@ def __main__(args):
         simple_replay_buffer.load(simple_buffer_path)
 
     training_setups = [
-        (simple_map, simple_replay_buffer, simple_buffer_path),
-        (banana_map, banana_replay_buffer, banana_buffer_path),
         (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
+        (banana_map, banana_replay_buffer, banana_buffer_path),
+        (simple_map, simple_replay_buffer, simple_buffer_path),
     ]
 
     for mapstruct, replay_buffer, buffer_path in training_setups:
@@ -57,7 +61,7 @@ def __main__(args):
 
             bot1 = args.model_type(
                     None, 1, 2, network,
-                    iters=300,
+                    iters=150,
                     max_depth=args.max_depth,
                     trust_policy=args.policy_trust,
                     moves_to_consider=args.moves_consider,
@@ -71,7 +75,7 @@ def __main__(args):
             )
             bot2 = args.model_type(
                     None, 2, 1, network,
-                    iters=300,
+                    iters=150,
                     max_depth=args.max_depth,
                     trust_policy=args.policy_trust,
                     moves_to_consider=args.moves_consider,
