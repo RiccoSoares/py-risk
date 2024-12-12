@@ -22,9 +22,9 @@ def __main__(args):
     banana_map = custom_maps.create_banana_map()
     owl_island_map = custom_maps.create_owl_island_map()
 
-    owl_island_replay_buffer = ReplayBuffer(target_experiences + 200)
-    banana_replay_buffer = ReplayBuffer(target_experiences + 200)
-    simple_replay_buffer = ReplayBuffer(target_experiences + 200)
+    owl_island_replay_buffer = ReplayBuffer(target_experiences + 2000)
+    banana_replay_buffer = ReplayBuffer(target_experiences + 2000)
+    simple_replay_buffer = ReplayBuffer(target_experiences + 2000)
 
     owl_island_buffer_path = "replay-buffer/it1/owl_island.pkl"
     banana_buffer_path = "replay-buffer/it1/banana.pkl"
