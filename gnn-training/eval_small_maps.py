@@ -110,6 +110,8 @@ def __main__(args):
                     callbacks.append(risk.record_data_callback(data))
                 if args.surrender_thresh > 0:
                     callbacks.append(risk.early_terminate_callback(args.surrender_thresh))
+                if args.tie_after > 0:
+                    callbacks.append(risk.tie_callback(args.tie_after))
 
                 result = game.play_loop(
                     bot1,
@@ -122,13 +124,19 @@ def __main__(args):
 
                 if result == 1:
                     latest_agent_wins += 1
-                else:
+                    latest_agent_map_wins += 1
+                elif result == 2:
                     opp_wins += 1
+                    opp_map_wins += 1
+                else:
+                    latest_agent_wins += 0.5
+                    latest_agent_map_wins += 0.5
+                    opp_wins += 0.5
+                    opp_map_wins += 0.5
 
                 print("\n")
-                print(f"Game {i} complete: Player {result} Won")
-                print(f"Latest Bot wins: {latest_agent_wins} ({latest_agent_wins/(i+1)*100})%")
-                print(f"{matchup[2]} Bot wins: {opp_wins} ({opp_wins/(i+1)*100}%)")
+                print(f"Latest Bot wins: {latest_agent_map_wins} ({latest_agent_map_wins/(i+1)*100})%")
+                print(f"{matchup[2]} Bot wins: {opp_map_wins} ({opp_map_wins/(i+1)*100}%)")
                 print("\n")
 
                 if args.output_dir:
@@ -141,13 +149,13 @@ def __main__(args):
 
             print("\n\n")
             print(f"Map {mapstruct.name} Results")
-            print(f"Latest Bot wins: {latest_agent_map_wins} ({latest_agent_map_wins/args.num_games*100})%")
-            print(f"{matchup[2]} wins: {opp_map_wins} ({opp_map_wins/args.num_games*len(maps)*100}%)")
+            print(f"Latest Bot wins: {latest_agent_map_wins} ({(latest_agent_map_wins/args.num_games)*100})%")
+            print(f"{matchup[2]} wins: {opp_map_wins} ({(opp_map_wins/args.num_games)*100}%)")
     
         print("\n\n")
         print(f"Overall Results for matchup between {matchup[2]} and Latest Bot")
-        print(f"Latest Bot wins: {latest_agent_wins} ({latest_agent_wins/args.num_games*len(maps)*100})%")
-        print(f"{matchup[2]} wins: {opp_wins} ({opp_wins/args.num_games*len(maps)*100}%)")
+        print(f"Latest Bot wins: {latest_agent_wins} ({(latest_agent_wins/args.num_games*len(maps))*100})%")
+        print(f"{matchup[2]} wins: {opp_wins} ({(opp_wins/args.num_games*len(maps))*100}%)")
 
 
 
@@ -182,4 +190,5 @@ if __name__ == "__main__":
     parser.add_argument("--mirror-model-2", type=strtobool, default=False, help="")
     parser.add_argument("--rounds-1", type=int, default=1, help="")
     parser.add_argument("--rounds-2", type=int, default=1, help="")
+    parser.add_argument("--tie-after", type=int, default=50, help="Number of turns to play before declaring a tie")
     __main__(parser.parse_args())

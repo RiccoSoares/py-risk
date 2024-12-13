@@ -40,9 +40,9 @@ def __main__(args):
         simple_replay_buffer.load(simple_buffer_path)
 
     training_setups = [
-        (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
-        (banana_map, banana_replay_buffer, banana_buffer_path),
         (simple_map, simple_replay_buffer, simple_buffer_path),
+        (banana_map, banana_replay_buffer, banana_buffer_path),
+        (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
     ]
 
     for mapstruct, replay_buffer, buffer_path in training_setups:
@@ -93,6 +93,8 @@ def __main__(args):
             callbacks.append(risk.record_data_callback(data))
             if args.surrender_thresh > 0:
                 callbacks.append(risk.early_terminate_callback(args.surrender_thresh))
+            if args.tie_after > 0:
+                callbacks.append(risk.tie_callback(args.tie_after))
 
             result = game.play_loop(
                 bot1,
@@ -102,7 +104,10 @@ def __main__(args):
 
             data["winner"] = result
             replay_buffer.collect_training_data(data["turns"], mapstruct, 1, 2)
-            print(f"Game complete: Player {result} Won")
+            if result == 0:
+                print("Game complete: Tie")
+            else:
+                print(f"Game complete: Player {result} Won")
             print("\n")
 
             os.makedirs('results', exist_ok=True)
@@ -133,4 +138,5 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", type=risk.mcts_helper.model_builder, default="MCTS", help="")
     parser.add_argument("--pop-size", type=int, default=50, help="")
     parser.add_argument("--mirror-model", type=strtobool, default=False, help="")
+    parser.add_argument("--tie-after", type=int, default=50, help="Number of turns to play before declaring a tie")
     __main__(parser.parse_args())

@@ -49,3 +49,14 @@ def early_terminate_callback(threshold):
         return early_winner
     return callback
 
+def tie_callback(num_turns):
+    def callback(bots, mapstate, turn):
+        if turn > num_turns:
+            p1 = bots[0].win_prob()
+            p2 = bots[1].win_prob()
+            if 0.49 <= p1 <= 0.51 and 0.49 <= p2 <= 0.51:
+                print(f"Game tied after {num_turns} turns")
+                return 0
+        return None
+    return callback
+
