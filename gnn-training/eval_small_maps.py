@@ -79,8 +79,8 @@ def __main__(args):
         )
 
     matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
-    maps = [custom_maps.create_banana_map(), custom_maps.create_owl_island_map(), custom_maps.create_simple_map()]
-    buffer_paths = ['replay-buffer/it{it_num}/banana.pkl', 'replay-buffer/it{it_num}/owl_island.pkl', 'replay-buffer/it{it_num}/simple.pkl']
+    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
+    buffer_paths = [f'replay-buffer/it{it_num}/owl_island.pkl', f'replay-buffer/it{it_num}/simple.pkl', f'replay-buffer/it{it_num}/banana.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")
