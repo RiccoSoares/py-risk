@@ -11,15 +11,15 @@ from train_gnn import *
 def main(args):
     # Load the replay buffer
     owl_exps = ReplayBuffer()
-    owl_exps.load('replay-buffer/mcts300/owl_island.pkl')
+    owl_exps.load('replay-buffer/data/owl_island.pkl')
     print('Loaded owl_island replay buffer of size:', len(owl_exps.buffer))
 
     simple_exps = ReplayBuffer()
-    simple_exps.load('replay-buffer/mcts300/simple.pkl')
+    simple_exps.load('replay-buffer/data/simple.pkl')
     print('Loaded simple replay buffer of size:', len(simple_exps.buffer))
 
     banana_exps = ReplayBuffer()
-    banana_exps.load('replay-buffer/mcts300/banana.pkl')
+    banana_exps.load('replay-buffer/data/banana.pkl')
     print('Loaded banana replay buffer of size:', len(banana_exps.buffer))
 
     replay_buffers = [owl_exps, simple_exps, banana_exps]

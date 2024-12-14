@@ -18,9 +18,10 @@ except ImportError:
 def __main__(args):
     latest_gnn = Model15()
     previous_gnn = Model15()
+    it_num = 2
 
-    latest_pth = 'model-weights/it1.pkl'
-    previous_pth = 'model-weights/it0.pkl'
+    latest_pth = f'model-weights/{it_num}.pkl'
+    previous_pth = f'model-weights/{it_num-1}.pkl'
 
     with open(latest_pth, 'rb') as f:
         latest_gnn.load_state_dict(pickle.load(f))
@@ -79,7 +80,7 @@ def __main__(args):
 
     matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
     maps = [custom_maps.create_banana_map(), custom_maps.create_owl_island_map(), custom_maps.create_simple_map()]
-    buffer_paths = ['replay-buffer/it1/banana.pkl', 'replay-buffer/it1/owl_island.pkl', 'replay-buffer/it1/simple.pkl']
+    buffer_paths = ['replay-buffer/{it_num}/banana.pkl', 'replay-buffer/{it_num}/owl_island.pkl', 'replay-buffer/{it_num}/simple.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")
@@ -120,7 +121,7 @@ def __main__(args):
                 )
 
                 data["winner"] = result
-                replay_buffer.collect_player_data(data["turns"], mapstruct, 1, 2)
+                replay_buffer.collect_training_data(data["turns"], mapstruct, 1, 2)
 
                 if result == 1:
                     latest_agent_wins += 1
@@ -151,6 +152,7 @@ def __main__(args):
             print(f"Map {mapstruct.name} Results")
             print(f"Latest Bot wins: {latest_agent_map_wins} ({(latest_agent_map_wins/args.num_games)*100})%")
             print(f"{matchup[2]} wins: {opp_map_wins} ({(opp_map_wins/args.num_games)*100}%)")
+            print("\n\n")
     
         print("\n\n")
         print(f"Overall Results for matchup between {matchup[2]} and Latest Bot")
