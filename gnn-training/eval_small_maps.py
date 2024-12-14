@@ -20,8 +20,8 @@ def __main__(args):
     previous_gnn = Model15()
     it_num = 2
 
-    latest_pth = f'model-weights/{it_num}.pkl'
-    previous_pth = f'model-weights/{it_num-1}.pkl'
+    latest_pth = f'model-weights/it{it_num}.pkl'
+    previous_pth = f'model-weights/it{it_num-1}.pkl'
 
     with open(latest_pth, 'rb') as f:
         latest_gnn.load_state_dict(pickle.load(f))
@@ -80,7 +80,7 @@ def __main__(args):
 
     matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
     maps = [custom_maps.create_banana_map(), custom_maps.create_owl_island_map(), custom_maps.create_simple_map()]
-    buffer_paths = ['replay-buffer/{it_num}/banana.pkl', 'replay-buffer/{it_num}/owl_island.pkl', 'replay-buffer/{it_num}/simple.pkl']
+    buffer_paths = ['replay-buffer/it{it_num}/banana.pkl', 'replay-buffer/it{it_num}/owl_island.pkl', 'replay-buffer/it{it_num}/simple.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")
