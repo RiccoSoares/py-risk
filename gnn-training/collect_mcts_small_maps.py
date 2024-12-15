@@ -13,22 +13,30 @@ from risk.nn import Model15
 
 def __main__(args):
     network = Model15()
-    with open('model-weights/it1.pkl', 'rb') as f:
+    it_num = 2
+
+    with open(f'model-weights/{it_num}.pkl', 'rb') as f:
         network.load_state_dict(pickle.load(f))
 
     target_experiences = 10000
 
+    italy_map = custom_maps.create_italy_map()
     simple_map = custom_maps.create_simple_map()
     banana_map = custom_maps.create_banana_map()
     owl_island_map = custom_maps.create_owl_island_map()
 
+    italy_replay_buffer = ReplayBuffer(target_experiences + 2000)
     owl_island_replay_buffer = ReplayBuffer(target_experiences + 2000)
     banana_replay_buffer = ReplayBuffer(target_experiences + 2000)
     simple_replay_buffer = ReplayBuffer(target_experiences + 2000)
 
-    owl_island_buffer_path = "replay-buffer/it1/owl_island.pkl"
-    banana_buffer_path = "replay-buffer/it1/banana.pkl"
-    simple_buffer_path = "replay-buffer/it1/simple.pkl"
+    italy_buffer_path = f"replay-buffer/{it_num}/italy.pkl"
+    owl_island_buffer_path = f"replay-buffer/{it_num}/owl_island.pkl"
+    banana_buffer_path = f"replay-buffer/{it_num}/banana.pkl"
+    simple_buffer_path = f"replay-buffer/{it_num}/simple.pkl"
+
+    if os.path.exists(italy_buffer_path):
+        italy_replay_buffer.load(italy_buffer_path)
 
     if os.path.exists(owl_island_buffer_path):
         owl_island_replay_buffer.load(owl_island_buffer_path)
@@ -40,6 +48,7 @@ def __main__(args):
         simple_replay_buffer.load(simple_buffer_path)
 
     training_setups = [
+        (italy_map, italy_replay_buffer, italy_buffer_path),
         (simple_map, simple_replay_buffer, simple_buffer_path),
         (banana_map, banana_replay_buffer, banana_buffer_path),
         (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
