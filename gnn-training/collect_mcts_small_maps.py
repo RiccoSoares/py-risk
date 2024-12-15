@@ -15,7 +15,7 @@ def __main__(args):
     network = Model15()
     it_num = 2
 
-    with open(f'model-weights/{it_num}.pkl', 'rb') as f:
+    with open(f'model-weights/it{it_num}.pkl', 'rb') as f:
         network.load_state_dict(pickle.load(f))
 
     target_experiences = 10000
@@ -30,10 +30,10 @@ def __main__(args):
     banana_replay_buffer = ReplayBuffer(target_experiences + 2000)
     simple_replay_buffer = ReplayBuffer(target_experiences + 2000)
 
-    italy_buffer_path = f"replay-buffer/{it_num}/italy.pkl"
-    owl_island_buffer_path = f"replay-buffer/{it_num}/owl_island.pkl"
-    banana_buffer_path = f"replay-buffer/{it_num}/banana.pkl"
-    simple_buffer_path = f"replay-buffer/{it_num}/simple.pkl"
+    italy_buffer_path = f"replay-buffer/it{it_num}/italy.pkl"
+    owl_island_buffer_path = f"replay-buffer/it{it_num}/owl_island.pkl"
+    banana_buffer_path = f"replay-buffer/it{it_num}/banana.pkl"
+    simple_buffer_path = f"replay-buffer/it{it_num}/simple.pkl"
 
     if os.path.exists(italy_buffer_path):
         italy_replay_buffer.load(italy_buffer_path)
