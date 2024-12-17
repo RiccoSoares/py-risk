@@ -20,7 +20,7 @@ def __main__(args):
 
     target_experiences = 10000
 
-    small_earth_map = custom_maps.create_small_earth()
+    small_earth_map = custom_maps.create_small_earth_map()
     simple_map = custom_maps.create_simple_map()
     banana_map = custom_maps.create_banana_map()
     owl_island_map = custom_maps.create_owl_island_map()
