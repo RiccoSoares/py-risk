@@ -54,11 +54,11 @@ def __main__(args):
         italy_replay_buffer.load(italy_buffer_path)
 
     training_setups = [
-        (small_earth_map, small_earth_replay_buffer, small_earth_buffer_path),
-        (simple_map, simple_replay_buffer, simple_buffer_path),
         (banana_map, banana_replay_buffer, banana_buffer_path),
         (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
+        (simple_map, simple_replay_buffer, simple_buffer_path),
         (italy_map, italy_replay_buffer, italy_buffer_path),
+        (small_earth_map, small_earth_replay_buffer, small_earth_buffer_path),
     ]
 
     for mapstruct, replay_buffer, buffer_path in training_setups:
