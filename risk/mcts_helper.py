@@ -343,7 +343,7 @@ class RaveNode(Node):
 
 class Genetic(MCTS):
     def __init__(self, *args, **settings):
-        self.pop_size = settings.pop('pop_size', 50)
+        self.pop_size = settings.pop('pop_size', 20)
         self.max_dist = settings.pop('max_dist', float('inf'))
         #self.max_dist = 0
         self.rounds = settings.pop('rounds', 1)
@@ -379,8 +379,8 @@ class Genetic(MCTS):
 
             best_player_move = OrderList.from_gene(best_player_pop_individual.genes, mapstate.mapstruct, self.player)
 
-            self.root_node.win_value += best_player_pop_individual.fitness - best_opponent_pop_individual.fitness
-            self.root_node.visits += c.generations*c.populations_size
+            self.root_node.win_value += best_player_pop_individual.fitness*c.populations_size
+            self.root_node.visits += c.populations_size
 
             return best_player_move
             

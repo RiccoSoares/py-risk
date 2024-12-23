@@ -33,7 +33,7 @@ class Coevolution:
      generations= 10,  
      crossover_rate= 0.2, 
      tournament_size= 3, 
-     elitism= 1,
+     elitism= 4,
      mutation_rate= 0.05,
      mutation_percent_genes = 0.05,
      initialize_pops_with_gnn= False,
@@ -134,7 +134,7 @@ class Coevolution:
         eval_index = 0
         for idx, (i, j) in enumerate(boards_indices):
             if not winners[idx]:
-                fit = values[eval_index].item() * 0.5
+                fit = values[eval_index].item()
                 self.relational_fitness_table[i, j] = fit
                 eval_index += 1
 
