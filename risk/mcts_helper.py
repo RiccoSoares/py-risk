@@ -68,6 +68,7 @@ class MCTS(MonteCarlo):
         self.NodeType = Node if self.alpha == np.inf else lambda mapstate: RaveNode(mapstate, alpha=self.alpha)
         settings.pop('pop_size', None)
         self.mirror_model = settings.pop('mirror_model', False)
+        self.initialize_populations_with_policy = settings.pop('initialize_populations_with_policy', False)
         if settings:
             raise TypeError("MCTS got unexpected parameters " + ", ".join(f"'{arg}'" for arg in settings))
         if mapstate is not None: self.setMapState(mapstate)
@@ -345,7 +346,6 @@ class Genetic(MCTS):
     def __init__(self, *args, **settings):
         self.pop_size = settings.pop('pop_size', 20)
         self.max_dist = settings.pop('max_dist', float('inf'))
-        #self.max_dist = 0
         self.rounds = settings.pop('rounds', 1)
         super().__init__(*args, **settings)
         self.elapsed = 0
@@ -371,6 +371,8 @@ class Genetic(MCTS):
                 self.player,
                 self.opponent,
                 self.model,
+                self.initialize_populations_with_policy,
+                timeout  = 15,
             )
             c.evolve()
             self.elapsed = time() - start

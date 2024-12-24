@@ -9,9 +9,9 @@ from torch_geometric.data import Batch
 from torch_geometric.loader import DataLoader
 
 class Individual:
-    def __init__(self, genes, index):
+    def __init__(self, genes, index, fitness=None):
         self.genes = genes
-        self.fitness = None
+        self.fitness = fitness
         self.index = index
 
     def __lt__(self, other):
@@ -28,7 +28,8 @@ class Coevolution:
      mapstate: MapState,
      player1: int, 
      player2: int,
-     gnn_model, 
+     gnn_model,
+     initialize_populations_with_policy= False, 
      populations_size= 20, 
      generations= 10,  
      crossover_rate= 0.2, 
@@ -36,8 +37,7 @@ class Coevolution:
      elitism= 4,
      mutation_rate= 0.05,
      mutation_percent_genes = 0.05,
-     initialize_pops_with_gnn= False,
-     timeout= np.inf):
+     timeout= 15):
 
         self.mapstate = mapstate
         self.mapstruct = mapstate.mapstruct
@@ -58,8 +58,8 @@ class Coevolution:
         self.population2 = []
         self.population1_elite = []
         self.population2_elite = []
-        self.initialize_pops_with_gnn = initialize_pops_with_gnn
-        self.timeout = timeout
+        self.initialize_populations_with_policy = initialize_populations_with_policy
+        self.timeout = 15
         self.start_time = time()
     
     def evolve(self):
@@ -80,12 +80,44 @@ class Coevolution:
         self.population1.sort(reverse=True)
         self.population2.sort(reverse=True)
 
+    def get_populations_with_policy(self):
+        pop1_moves, pop2_moves = [], []
+
+        for i in range(self.populations_size*3):
+            pop1_moves.append(rand_move(self.mapstate, self.player1))
+            pop2_moves.append(rand_move(self.mapstate, self.player2))
+        
+        pop1_data = self.prep_policy_value_data(self.mapstate, self.mapstruct, pop1_moves, self.player1, self.player2)
+        pop2_data = self.prep_policy_value_data(self.mapstate, self.mapstruct, pop2_moves, self.player2, self.player1)
+        pop1_loader = DataLoader([pop1_data], batch_size=1, shuffle=False)
+        pop2_loader = DataLoader([pop2_data], batch_size=1, shuffle=False)
+
+        for batch in pop1_loader:
+            _, policy1 = self.gnn_model(batch)
+        for batch in pop2_loader:
+            _, policy2 = self.gnn_model(batch)
+
+        policy1 = policy1[0].tolist()
+        policy2 = policy2[0].tolist()
+
+        for i in range(self.populations_size*3):
+            self.population1.append(Individual(pop1_moves[i].to_gene(self.mapstruct), i, policy1[i]))
+            self.population2.append(Individual(pop2_moves[i].to_gene(self.mapstruct), i, policy2[i]))
+
+        self.population1.sort(reverse=True)
+        self.population2.sort(reverse=True)
+        self.population1 = self.population1[:self.populations_size]
+        self.population2 = self.population2[:self.populations_size]
+
     def initialize_populations(self):
+        if self.initialize_populations_with_policy:
+            self.get_populations_with_policy()
+            return
+
         for i in range(self.populations_size):
             self.population1.append(
                 Individual(rand_move(self.mapstate, self.player1).to_gene(self.mapstruct), i)
             )
-
             self.population2.append(
                 Individual(rand_move(self.mapstate, self.player2).to_gene(self.mapstruct), i)
             )
