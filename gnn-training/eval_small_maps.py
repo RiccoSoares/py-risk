@@ -18,7 +18,7 @@ except ImportError:
 def __main__(args):
     latest_gnn = Model15()
     previous_gnn = Model15()
-    it_num = 2
+    it_num = 3
 
     latest_pth = f'model-weights/it{it_num}.pkl'
     previous_pth = f'model-weights/it{it_num-1}.pkl'
@@ -79,8 +79,12 @@ def __main__(args):
         )
 
     matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
-    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
-    buffer_paths = [f'replay-buffer/it{it_num}/owl_island.pkl', f'replay-buffer/it{it_num}/simple.pkl', f'replay-buffer/it{it_num}/banana.pkl']
+    
+    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map(),
+            custom_maps.create_italy_map(), custom_maps.create_small_earth_map()]
+
+    buffer_paths = [f'replay-buffer/it{it_num}/owl_island.pkl', f'replay-buffer/it{it_num}/simple.pkl', f'replay-buffer/it{it_num}/banana.pkl', 
+                    f'replay-buffer/it{it_num}/italy.pkl', f'replay-buffer/it{it_num}/small_earth.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")

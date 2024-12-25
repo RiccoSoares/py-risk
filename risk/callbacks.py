@@ -57,6 +57,9 @@ def tie_callback(num_turns):
             if 0.49 <= p1 <= 0.51 and 0.49 <= p2 <= 0.51:
                 print(f"Game tied after {num_turns} turns")
                 return 0
+            elif turns > 2*num_turns:
+                print(f"Forced tied after {2*num_turns} turns")
+                return 0
         return None
     return callback
 
