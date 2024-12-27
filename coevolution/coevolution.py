@@ -30,11 +30,11 @@ class Coevolution:
      player2: int,
      gnn_model,
      initialize_populations_with_policy= False, 
-     populations_size= 20, 
+     populations_size= 25, 
      generations= 30,  
      crossover_rate= 0.2, 
      tournament_size= 3, 
-     elitism= 4,
+     elitism= 5,
      mutation_rate= 0.05,
      mutation_percent_genes = 0.05,
      timeout= 15):
