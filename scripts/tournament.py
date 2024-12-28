@@ -56,13 +56,12 @@ def __main__(args):
         "name": "Policy Initialized Genetic Algorithm",
     }
 
-    matchups = [
-                (ga_config, policy_initialized_ga_config),
-                (baseline_mcts_config, ga_config),
+    matchups = [(baseline_mcts_config, ga_config),
                 (baseline_mcts_config, policy_initialized_ga_config),
                 (baseline_mcts_config, guided_mcts_config),
                 (guided_mcts_config, ga_config),
-                (guided_mcts_config, policy_initialized_ga_config),]
+                (guided_mcts_config, policy_initialized_ga_config),
+                (ga_config, policy_initialized_ga_config),]
     
     maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
 
