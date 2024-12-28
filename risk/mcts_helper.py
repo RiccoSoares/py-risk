@@ -372,7 +372,7 @@ class Genetic(MCTS):
                 self.opponent,
                 self.model,
                 self.initialize_populations_with_policy,
-                timeout  = 15,
+                timeout  = self.timeout,
             )
             c.evolve()
             self.elapsed = time() - start

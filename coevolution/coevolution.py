@@ -37,7 +37,7 @@ class Coevolution:
      elitism= 5,
      mutation_rate= 0.2,
      mutation_percent_genes = 0.05,
-     timeout= 15):
+     timeout= 12):
 
         self.mapstate = mapstate
         self.mapstruct = mapstate.mapstruct
@@ -59,7 +59,7 @@ class Coevolution:
         self.population1_elite = []
         self.population2_elite = []
         self.initialize_populations_with_policy = initialize_populations_with_policy
-        self.timeout = 15
+        self.timeout = timeout
         self.start_time = time()
     
     def evolve(self):
@@ -70,10 +70,25 @@ class Coevolution:
                 break
 
             self.evaluate_populations()
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
+                break
+
             self.define_elites()
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
+                break
+
             self.apply_crossover()
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
+                break
+
             self.mutate_populations()
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
+                break
+
             self.evaluate_populations()
+            if self.timeout is not np.inf and time() - self.start_time > self.timeout:
+                break
+
             self.apply_elitism()
         
         self.evaluate_populations()
