@@ -30,7 +30,6 @@ def __main__(args):
         "model": gnn,
         "initialize_populations_with_policy": False,
         "name": "Guided MCTS",
-        "timeout": 12,
     }
 
     baseline_mcts_config = {
@@ -39,7 +38,6 @@ def __main__(args):
         "model": None,
         "initialize_populations_with_policy": False,
         "name": "Baseline MCTS",
-        "timeout": float("inf"),
     }
 
     ga_config = {
@@ -48,7 +46,6 @@ def __main__(args):
         "model": gnn,
         "initialize_populations_with_policy": False,
         "name": "Genetic Algorithm",
-        "timeout": 12,
     }
 
     policy_initialized_ga_config = {
@@ -57,15 +54,15 @@ def __main__(args):
         "model": gnn,
         "initialize_populations_with_policy": True,
         "name": "Policy Initialized Genetic Algorithm",
-        "timeout": 12,
     }
 
-    matchups = [(guided_mcts_config, ga_config),
-                (guided_mcts_config, policy_initialized_ga_config),
+    matchups = [
                 (ga_config, policy_initialized_ga_config),
                 (baseline_mcts_config, ga_config),
                 (baseline_mcts_config, policy_initialized_ga_config),
-                (baseline_mcts_config, guided_mcts_config)]
+                (baseline_mcts_config, guided_mcts_config),
+                (guided_mcts_config, ga_config),
+                (guided_mcts_config, policy_initialized_ga_config),]
     
     maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
 
@@ -80,7 +77,7 @@ def __main__(args):
                 max_depth=args.max_depth_1,
                 trust_policy=args.policy_trust_1,
                 moves_to_consider=args.moves_consider_1,
-                timeout=matchup[0]["timeout"],
+                12,
                 exploration=args.exploration_1,
                 cache_opponent_moves=args.cache_opponent_moves_1,
                 obj_rand=args.obj_rand_1,
@@ -96,7 +93,7 @@ def __main__(args):
                 max_depth=args.max_depth_2,
                 trust_policy=args.policy_trust_2,
                 moves_to_consider=args.moves_consider_2,
-                timeout=matchup[1]["timeout"],
+                12,
                 exploration=args.exploration_2,
                 cache_opponent_moves=args.cache_opponent_moves_2,
                 obj_rand=args.obj_rand_2,
