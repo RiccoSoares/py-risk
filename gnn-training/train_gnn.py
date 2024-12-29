@@ -24,7 +24,7 @@ def collate_batch(batch):
     return state_batch, target_policy, target_value
 
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20, learning_rate=0.001):
+def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20, learning_rate=0.001, savepth):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.CrossEntropyLoss()
     criterion_value = torch.nn.MSELoss()
@@ -69,7 +69,7 @@ def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20
         print(f"Epoch {epoch+1}/{epochs}, Policy Loss: {avg_policy_loss}, Value Loss: {avg_value_loss}")
         # save the model after 10 epochs
         if (epoch+1) % 10 == 0:
-            with open(f'{args.model_path}_{epoch+1}.pkl', 'wb') as f:
+            with open(f'{savepth}_{epoch+1}.pkl', 'wb') as f:
                 pickle.dump(network.state_dict(), f)
 
     print("Training complete.")

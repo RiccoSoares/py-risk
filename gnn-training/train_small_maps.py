@@ -30,7 +30,8 @@ def main(args):
         network.load_state_dict(pickle.load(f))
 
     # Train the network
-    trained_network = train_policy_value_network(network, replay_buffers, epochs=args.epochs, batch_size=args.batch_size, learning_rate=args.learning_rate)
+    trained_network = train_policy_value_network(network, replay_buffers, epochs=args.epochs, batch_size=args.batch_size,
+     learning_rate=args.learning_rate, savepth=args.trained_model_path)
 
     # Save the trained network
     with open(args.trained_model_path, 'wb') as f:
