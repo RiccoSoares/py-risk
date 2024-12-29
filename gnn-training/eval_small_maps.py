@@ -20,7 +20,7 @@ def __main__(args):
     previous_gnn = Model15()
     it_num = 3
 
-    latest_pth = f'model-weights/it{it_num}.pkl'
+    latest_pth = f'model-weights/it{it_num}v2.pkl'
     previous_pth = f'model-weights/it{it_num-1}.pkl'
 
     with open(latest_pth, 'rb') as f:
@@ -78,13 +78,11 @@ def __main__(args):
                 mirror_model=args.mirror_model_2,
         )
 
-    matchups = [(latest_agent, baseline, 'Baseline'),(latest_agent, previous_agent, 'Previous Iteration')]
+    matchups = [(latest_agent, previous_agent, 'Previous Iteration'), (latest_agent, baseline, 'Baseline')]
     
-    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map(),
-            custom_maps.create_italy_map(), custom_maps.create_small_earth_map()]
+    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
 
-    buffer_paths = [f'replay-buffer/it{it_num}/owl_island.pkl', f'replay-buffer/it{it_num}/simple.pkl', f'replay-buffer/it{it_num}/banana.pkl', 
-                    f'replay-buffer/it{it_num}/italy.pkl', f'replay-buffer/it{it_num}/small_earth.pkl']
+    buffer_paths = [f'replay-buffer/it{it_num}v2/owl_island.pkl', f'replay-buffer/it{it_num}v2/simple.pkl', f'replay-buffer/it{it_num}v2/banana.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[2]} and Latest Bot")
