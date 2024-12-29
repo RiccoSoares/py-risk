@@ -24,7 +24,7 @@ def collate_batch(batch):
     return state_batch, target_policy, target_value
 
 # Function to train the policy and value network
-def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20, learning_rate=0.001, savepth):
+def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20, learning_rate=0.001, savepth='trainded_model'):
     optimizer = Adam(network.parameters(), lr=learning_rate)
     criterion_policy = torch.nn.CrossEntropyLoss()
     criterion_value = torch.nn.MSELoss()
