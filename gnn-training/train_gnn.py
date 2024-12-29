@@ -67,6 +67,10 @@ def train_policy_value_network(network, replay_buffers, epochs=30, batch_size=20
         avg_value_loss = total_value_loss / len(replay_buffer.buffer)
         
         print(f"Epoch {epoch+1}/{epochs}, Policy Loss: {avg_policy_loss}, Value Loss: {avg_value_loss}")
+        # save the model after 10 epochs
+        if (epoch+1) % 10 == 0:
+            with open(f'{args.model_path}_{epoch+1}.pkl', 'wb') as f:
+                pickle.dump(network.state_dict(), f)
 
     print("Training complete.")
     return network
