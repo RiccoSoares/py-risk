@@ -20,7 +20,7 @@ def __main__(args):
     previous_gnn = Model15()
     it_num = 3
 
-    latest_pth = f'model-weights/it{it_num}v2_60.pkl'
+    latest_pth = f'model-weights/it{it_num}v2/{it_num}v2.pkl'
     previous_pth = f'model-weights/it{it_num-1}.pkl'
 
     with open(latest_pth, 'rb') as f:
