@@ -22,7 +22,11 @@ def main(args):
     banana_exps.load('replay-buffer/data/banana.pkl')
     print('Loaded banana replay buffer of size:', len(banana_exps.buffer))
 
-    replay_buffers = [owl_exps, simple_exps, banana_exps]
+    italy_exps = ReplayBuffer()
+    italy_exps.load('replay-buffer/data/italy.pkl')
+    print('Loaded italy replay buffer of size:', len(italy_exps.buffer))
+
+    replay_buffers = [owl_exps, simple_exps, banana_exps, italy_exps]
 
     # Initialize and load the model
     network = Model15()  
