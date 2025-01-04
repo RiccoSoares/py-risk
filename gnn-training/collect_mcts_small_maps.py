@@ -13,9 +13,9 @@ from risk.nn import Model15
 
 def __main__(args):
     network = Model15()
-    it_num = 2
+    it_num = 3
 
-    with open(f'model-weights/it{it_num}.pkl', 'rb') as f:
+    with open(f'model-weights/it3v3/it3{it_num}v3.pkl', 'rb') as f:
         network.load_state_dict(pickle.load(f))
 
     target_experiences = 10000
@@ -54,10 +54,10 @@ def __main__(args):
         italy_replay_buffer.load(italy_buffer_path)
 
     training_setups = [
+        (italy_map, italy_replay_buffer, italy_buffer_path),
         (simple_map, simple_replay_buffer, simple_buffer_path),
         (banana_map, banana_replay_buffer, banana_buffer_path),
         (owl_island_map, owl_island_replay_buffer, owl_island_buffer_path),
-        (italy_map, italy_replay_buffer, italy_buffer_path),
         (small_earth_map, small_earth_replay_buffer, small_earth_buffer_path),
     ]
 
