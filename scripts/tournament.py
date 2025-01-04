@@ -26,7 +26,7 @@ def __main__(args):
 
     guided_mcts_config = {
         "type": "MCTS",
-        "iters": 300,
+        "iters": 150,
         "model": gnn,
         "initialize_populations_with_policy": False,
         "name": "Guided MCTS",
@@ -77,7 +77,7 @@ def __main__(args):
                 max_depth=args.max_depth_1,
                 trust_policy=args.policy_trust_1,
                 moves_to_consider=args.moves_consider_1,
-                timeout=12,
+                timeout=np.inf,
                 exploration=args.exploration_1,
                 cache_opponent_moves=args.cache_opponent_moves_1,
                 obj_rand=args.obj_rand_1,
@@ -93,7 +93,7 @@ def __main__(args):
                 max_depth=args.max_depth_2,
                 trust_policy=args.policy_trust_2,
                 moves_to_consider=args.moves_consider_2,
-                timeout=12,
+                timeout=np.inf,
                 exploration=args.exploration_2,
                 cache_opponent_moves=args.cache_opponent_moves_2,
                 obj_rand=args.obj_rand_2,

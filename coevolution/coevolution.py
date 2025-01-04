@@ -31,7 +31,7 @@ class Coevolution:
      gnn_model,
      initialize_populations_with_policy= False, 
      populations_size= 30, 
-     generations= 35,  
+     generations= 15,  
      crossover_rate= 0.2, 
      tournament_size= 3, 
      elitism= 5,
