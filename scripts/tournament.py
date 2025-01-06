@@ -17,7 +17,7 @@ except ImportError:
 
 def __main__(args):
     gnn = Model15()
-    weights_pth = f'model-weights/it3v3/it3v3.pkl'
+    weights_pth = f'model-weights/it2.pkl'
 
     with open(weights_pth, 'rb') as f:
         gnn.load_state_dict(pickle.load(f))
@@ -64,9 +64,9 @@ def __main__(args):
                 (baseline_mcts_config, guided_mcts_config),
                 ]
     
-    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map(), custom_maps.create_italy_map()]
+    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()
 
-    buffer_paths = [f'replay-buffer/tournament/owl_island.pkl', f'replay-buffer/tournament/simple.pkl', f'replay-buffer/tournament/banana.pkl', 'replay-buffer/tournament/italy.pkl']
+    buffer_paths = [f'replay-buffer/tournament/owl_island.pkl', f'replay-buffer/tournament/simple.pkl', f'replay-buffer/tournament/banana.pkl']
 
     for matchup in matchups:
         print(f"\n\nStarting matchup between {matchup[0]['name']} and {matchup[1]['name']}\n\n")
