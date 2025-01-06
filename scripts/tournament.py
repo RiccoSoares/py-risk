@@ -64,7 +64,7 @@ def __main__(args):
                 (baseline_mcts_config, guided_mcts_config),
                 ]
     
-    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()[]
+    maps = [custom_maps.create_owl_island_map(), custom_maps.create_simple_map(), custom_maps.create_banana_map()]
 
     buffer_paths = [f'replay-buffer/tournament/owl_island.pkl', f'replay-buffer/tournament/simple.pkl', f'replay-buffer/tournament/banana.pkl']
 
